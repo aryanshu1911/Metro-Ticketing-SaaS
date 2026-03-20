@@ -1,0 +1,21 @@
+# Backend / Python
+venv/
+.env
+.env.*
+__pycache__/
+*.pyc
+
+# Frontend / Node
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/logs/
+frontend/*.log
+frontend/npm-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
