@@ -23,11 +23,14 @@ def get_db():
 class RegisterSchema(BaseModel):
     phone: str
     email: str
-    mpin: str
 
 class VerifyOtpSchema(BaseModel):
     phone: str
     otp: str
+
+class SetMpinSchema(BaseModel):
+    phone: str
+    mpin: str
 
 class LoginSchema(BaseModel):
     phone: str
@@ -38,25 +41,22 @@ class LoginSchema(BaseModel):
 def register(data: RegisterSchema, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.phone == data.phone).first()
     if user:
-        raise HTTPException(status_code=400, detail="User already exists")
+        # If user exists but mpin is null, it means they are partially registered
+        if user.mpin:
+            raise HTTPException(status_code=400, detail="User already exists")
+    else:
+        # New user
+        user = User(phone=data.phone, email=data.email)
+        db.add(user)
     
-    hashed_mpin = pwd_context.hash(data.mpin)
     otp = send_email_otp(data.email)
     if not otp:
         raise HTTPException(status_code=500, detail="Failed to send OTP")
 
-    # Create user with OTP and hashed mPIN
-    user = User(
-        phone=data.phone,
-        email=data.email,
-        mpin=hashed_mpin,
-        email_otp=otp,
-        otp_expires_at=datetime.utcnow() + timedelta(minutes=5)
-    )
-    db.add(user)
+    user.email_otp = otp
+    user.otp_expires_at = datetime.utcnow() + timedelta(minutes=5)
     db.commit()
-    db.refresh(user)
-    return {"message": "OTP sent to email. Please verify to complete registration."}
+    return {"message": "OTP sent to email. Please verify to proceed."}
 
 @router.post("/verify-otp")
 def verify_otp(data: VerifyOtpSchema, db: Session = Depends(get_db)):
@@ -70,15 +70,25 @@ def verify_otp(data: VerifyOtpSchema, db: Session = Depends(get_db)):
     user.email_otp = None
     user.otp_expires_at = None
     db.commit()
+    return {"message": "OTP verified. Now set your mPIN."}
+
+@router.post("/set-mpin")
+def set_mpin(data: SetMpinSchema, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.phone == data.phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user.mpin = pwd_context.hash(data.mpin)
+    db.commit()
     
     token = create_access_token({"user_id": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer", "message": "Registration complete!"}
 
 @router.post("/login")
 def login(data: LoginSchema, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.phone == data.phone).first()
-    if not user or not pwd_context.verify(data.mpin, user.mpin):
+    if not user or not user.mpin or not pwd_context.verify(data.mpin, user.mpin):
         raise HTTPException(status_code=400, detail="Invalid phone or mPIN")
     
     token = create_access_token({"user_id": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer"}

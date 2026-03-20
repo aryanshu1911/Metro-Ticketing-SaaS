@@ -61,51 +61,68 @@ export default function Ticket() {
   const destName = ticket.destination_name || ticket.stations?.find(s => s.id === ticket.destId)?.name || 'Unknown';
 
   return (
-    <div className="page-container" style={{ justifyContent: 'flex-start' }}>
+    <div className="page-container" style={{ justifyContent: 'flex-start', alignItems: 'center' }}>
       <TopNav title="" showBack />
       
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="glass-card"
-        style={{ textAlign: 'center', position: 'relative', overflow: 'hidden' }}
+        style={{ 
+          textAlign: 'center', 
+          position: 'relative', 
+          overflow: 'hidden',
+          width: '100%',
+          maxWidth: '450px' /* Restored for desktop */
+        }}
       >
         {/* Decorative ticket notch */}
         <div style={{ position: 'absolute', top: '150px', left: '-20px', width: '40px', height: '40px', background: 'var(--bg-dark)', borderRadius: '50%' }}></div>
         <div style={{ position: 'absolute', top: '150px', right: '-20px', width: '40px', height: '40px', background: 'var(--bg-dark)', borderRadius: '50%' }}></div>
 
-        <h3 style={{ margin: 0, color: 'var(--text-muted)' }}>Metro Ticket</h3>
-        <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.75rem', color: 'var(--primary-color)', textTransform: 'uppercase', fontWeight: 'bold' }}>
+        <h2 style={{ margin: 0, color: 'var(--text-muted)' }}>Metro E-Ticket</h2>
+        <p style={{ margin: '0.4rem 0 0 0', fontSize: '1rem', color: 'var(--primary-color)', textTransform: 'uppercase', fontWeight: 'bold' }}>
           {ticket.journey_type} • {ticket.passengers} Passenger{ticket.passengers > 1 ? 's' : ''}
         </p>
-        <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+        <p style={{ margin: '0.2rem 0 0 0', fontSize: '1rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
           ID: {id ? id.split('-')[0].toUpperCase() : 'N/A'}
         </p>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '2rem 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '1.5rem 0' }}>
           <div>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>From</span>
-            <strong style={{ fontSize: '1.2rem' }}>{sourceName}</strong>
+            <strong style={{ fontSize: '1.4rem' }}>{sourceName}</strong>
           </div>
-          <div style={{ color: 'var(--primary-color)' }}>➔</div>
+          <div style={{ color: 'var(--primary-color)', fontSize: '1.2rem' }}>➜</div>
           <div>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>To</span>
-            <strong style={{ fontSize: '1.2rem' }}>{destName}</strong>
+            <strong style={{ fontSize: '1.4rem' }}>{destName}</strong>
           </div>
         </div>
 
-        <div style={{ borderTop: '2px dashed var(--glass-border)', margin: '2rem -2rem', opacity: 0.5 }}></div>
+        <div style={{ borderTop: '2px dashed var(--glass-border)', margin: '1.5rem -2rem', opacity: 0.5 }}></div>
 
-        <div style={{ background: 'white', padding: '1.5rem', borderRadius: '1rem', display: 'inline-block', marginBottom: '1.5rem' }}>
-          <QRCode value={String(ticket.qr_code)} size={180} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '1.5rem', textAlign: 'left' }}>
+          <div>
+            Booked At:<br/>
+            <span style={{ color: 'var(--text-light)' }}>{new Date(ticket.booked_at).toLocaleString()}</span>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            Valid Until:<br/>
+            <span style={{ color: 'var(--danger)', fontWeight: 'bold' }}>{new Date(ticket.valid_till).toLocaleString()}</span>
+          </div>
+        </div>
+
+        <div style={{ background: 'white', padding: '1.2rem', borderRadius: '1rem', display: 'inline-block', marginBottom: '1rem' }}>
+          <QRCode value={String(ticket.qr_code)} size={200} />
         </div>
         
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-          Scan at the turnstile to {ticket.entry_scanned ? 'exit' : 'enter'}
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '0.5rem 0' }}>
+          Scan at turnstile to {ticket.entry_scanned ? 'exit' : 'enter'}
         </p>
 
-        <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '0.5rem', borderRadius: '2rem', display: 'inline-block', fontWeight: 'bold', fontSize: '0.9rem' }}>
-          Valid for Journey
+        <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '0.6rem 1.2rem', borderRadius: '2rem', display: 'inline-block', fontWeight: 'bold', fontSize: '1rem', marginTop: '0.5rem' }}>
+          Valid for Metro Journey Only
         </div>
       </motion.div>
     </div>

@@ -19,3 +19,7 @@ frontend/npm-debug.log*
 !.vscode/extensions.json
 .idea
 .DS_Store
+
+# Misc
+procedure.txt
+structure.txt

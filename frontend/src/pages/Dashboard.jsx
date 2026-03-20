@@ -10,71 +10,100 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const phone = localStorage.getItem('phone');
 
-  const fetchBalance = async () => {
-    try {
-      const res = await api.get(`/wallet/balance/${phone}`);
-      setBalance(res.data.balance);
-    } catch (err) {
-      if (err.response?.status === 401) {
-        localStorage.clear();
-        navigate('/login');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const res = await api.get(`/wallet/balance/${phone}`);
+        setBalance(res.data.balance);
+      } catch (err) {
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          navigate('/login');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchBalance();
-  }, [phone]);
+  }, [phone, navigate]);
 
-  const handleTopUp = async () => {
-    try {
-      // For Demo: add 100 INR
-      setLoading(true);
-      await api.post('/wallet/top-up', { phone, amount: 100 });
-      await fetchBalance();
-    } catch (err) {
-      alert('Failed to top up');
-      setLoading(false);
-    }
-  };
+  const menuItems = [
+    { title: 'Book Ticket', icon: '🎫', path: '/book', color: '#4F46E5', desc: 'New Journey' },
+    { title: 'My Tickets', icon: '📖', path: '/history', color: '#10B981', desc: 'View Active' },
+    { title: 'Wallet', icon: '💳', path: '/wallet', color: '#F59E0B', desc: `Balance: ₹${balance}` },
+    { title: 'Profile', icon: '👤', path: '/profile', color: '#6366F1', desc: 'User Details' },
+    { title: 'Transaction History', icon: '🕒', path: '/transactions', color: '#EC4899', desc: 'Payment Logs' },
+    { title: 'Support', icon: '🎧', path: '/support', color: '#8B5CF6', desc: '24/7 Help' },
+  ];
 
   return (
-    <div className="page-container" style={{ justifyContent: 'flex-start' }}>
+    <div className="page-container">
       <TopNav title="" />
       
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="glass-card"
-        style={{ textAlign: 'center', marginBottom: '2rem', padding: '3rem 2rem' }}
-      >
-        <h3 style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Wallet Balance</h3>
-        <h1 style={{ fontSize: '3.5rem', margin: 0, color: 'var(--primary-color)' }}>
-          ₹{loading ? '...' : balance}
-        </h1>
+      <div style={{ padding: '0 1rem', maxWidth: '100%' }}>
+        <h2 style={{ fontSize: '1.8rem', marginBottom: '2rem' }}>Welcome back,</h2>
         
-        <button 
-          className="btn-primary" 
-          onClick={handleTopUp}
-          disabled={loading}
-          style={{ marginTop: '2rem', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid var(--glass-border)' }}
-        >
-          {loading ? 'Processing...' : '+ Add ₹100'}
-        </button>
-      </motion.div>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: '1.5rem',
+          marginBottom: '2rem',
+          width: '100%'
+        }}>
+          {menuItems.map((item, idx) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(item.path)}
+              className="glass-card"
+              style={{ 
+                padding: '1.5rem', 
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                minHeight: '120px',
+                border: `1px solid ${item.color}22`
+              }}
+            >
+              <div style={{ 
+                fontSize: '2rem', 
+                background: `${item.color}22`,
+                width: '45px',
+                height: '45px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '0.75rem',
+                marginBottom: '1rem'
+              }}>
+                {item.icon}
+              </div>
+              <div>
+                <strong style={{ display: 'block', fontSize: '1rem' }}>{item.title}</strong>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.desc}</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
 
-      <motion.button 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="btn-primary" 
-        onClick={() => navigate('/book')}
-        style={{ padding: '1.25rem', fontSize: '1.25rem' }}
-      >
-        Book a Ticket
-      </motion.button>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="glass-card"
+          style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(79, 70, 229, 0.1)' }}
+        >
+          <div style={{ fontSize: '1.5rem' }}>📢</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>
+            <strong>System Update:</strong> Reach any station on Line 1 with your digital QR.
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
