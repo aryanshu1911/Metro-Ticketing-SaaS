@@ -12,6 +12,8 @@ class Ticket(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     source_station_id = Column(UUID(as_uuid=True), ForeignKey("stations.id"), nullable=False)
     destination_station_id = Column(UUID(as_uuid=True), ForeignKey("stations.id"), nullable=False)
+    passengers = Column(Integer, default=1)
+    journey_type = Column(String, default="single")
     fare = Column(Integer, nullable=False)
     qr_code = Column(String, nullable=False)
     entry_scanned = Column(Boolean, default=False)

@@ -15,6 +15,8 @@ class BookingSchema(BaseModel):
     phone: str
     source_station_id: str
     destination_station_id: str
+    passengers: int = 1
+    journey_type: str = "single"
 
 @router.post("/book")
 def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
@@ -30,23 +32,26 @@ def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Station not found")
     
     # 3. Calculate fare
-    fare = calculate_fare(source.order_index, dest.order_index)
+    base_fare = calculate_fare(source.order_index, dest.order_index)
+    total_fare = base_fare * data.passengers * (2 if data.journey_type == "return" else 1)
     
     # 4. Check balance
-    if user.wallet_balance < fare:
-        raise HTTPException(status_code=400, detail=f"Insufficient balance. Needed: {fare}, Current: {user.wallet_balance}")
+    if user.wallet_balance < total_fare:
+        raise HTTPException(status_code=400, detail=f"Insufficient balance. Needed: {total_fare}, Current: {user.wallet_balance}")
     
     # 5. Deduct balance
-    user.wallet_balance -= fare
+    user.wallet_balance -= total_fare
     
     # 6. Create ticket
     new_ticket = Ticket(
         user_id=user.id,
         source_station_id=source.id,
         destination_station_id=dest.id,
-        fare=fare,
+        passengers=data.passengers,
+        journey_type=data.journey_type,
+        fare=total_fare,
         qr_code=str(uuid.uuid4()), # Simplified QR for now
-        valid_till=datetime.utcnow() + timedelta(hours=3)
+        valid_till=datetime.utcnow() + timedelta(hours=3 if data.journey_type == "single" else 24)
     )
     db.add(new_ticket)
     db.commit()
@@ -55,7 +60,7 @@ def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
     return {
         "message": "Ticket booked successfully",
         "ticket_id": str(new_ticket.ticket_id),
-        "fare": fare,
+        "fare": total_fare,
         "new_balance": user.wallet_balance,
         "qr_code": new_ticket.qr_code
     }
@@ -85,3 +90,26 @@ def scan_exit(ticket_id: str, db: Session = Depends(get_db)):
     ticket.exit_scanned = True
     db.commit()
     return {"message": "Exit scanned successfully. Goodbye!"}
+
+@router.get("/{ticket_id}")
+def get_ticket(ticket_id: str, db: Session = Depends(get_db)):
+    ticket = db.query(Ticket).filter(Ticket.ticket_id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    # Get station names for convenience
+    source = db.query(Station).filter(Station.id == ticket.source_station_id).first()
+    dest = db.query(Station).filter(Station.id == ticket.destination_station_id).first()
+
+    return {
+        "ticket_id": str(ticket.ticket_id),
+        "source_name": source.name if source else "Unknown",
+        "destination_name": dest.name if dest else "Unknown",
+        "fare": ticket.fare,
+        "qr_code": ticket.qr_code,
+        "passengers": ticket.passengers,
+        "journey_type": ticket.journey_type,
+        "entry_scanned": ticket.entry_scanned,
+        "exit_scanned": ticket.exit_scanned,
+        "valid_till": ticket.valid_till
+    }
