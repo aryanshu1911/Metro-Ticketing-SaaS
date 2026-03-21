@@ -1,29 +1,25 @@
 Metro Ticketing System/
-├── backend/
+├── backend/                # FASTAPI BACKEND
 │   ├── app/
 │   │   ├── api/            # Route handlers (auth, station, wallet, ticket)
 │   │   ├── database/       # DB session and connection logic
-│   │   ├── models/         # SQLAlchemy database models
+│   │   ├── models/         # SQLAlchemy models (User, Station, Ticket, Transaction)
 │   │   ├── schemas/        # Pydantic validation schemas
-│   │   ├── services/       # Business logic (email, payments, etc.)
+│   │   ├── services/       # Business logic (fare calculation, auth)
 │   │   ├── utils/          # Helper functions and utilities
-│   │   ├── config.py       # Configuration management
-│   │   └── main.py         # FastAPI application entry point
+│   │   └── main.py         # Entry point
+│   ├── scripts/            # Admin scripts (seed_stations.py, clear_data.py)
 │   └── requirements.txt    # Python dependencies
-├── .env                    # Global environment variables
-├── frontend/
+│
+├── frontend/               # REACT FRONTEND
 │   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── pages/          # Full page components (Dashboard, Booking, etc.)
-│   │   ├── assets/         # Static assets (images, icons)
-│   │   ├── App.jsx         # Main React application & routing
-│   │   ├── api.js          # API service layer for backend communication
-│   │   ├── index.css       # Global styles and tailwind-like utilities
-│   │   └── main.jsx        # React DOM entry point
-│   ├── package.json        # Node.js dependencies and scripts
-│   └── vite.config.js      # Vite build configuration
-├── scripts/                # Utility and test automation scripts
-├── backups/                # Database and code backups
-├── README.md               # Main project documentation
-├── structure.txt           # Project directory structure (this file)
-└── procedure.txt           # Setup and operational procedures
+│   │   ├── components/     # Reusable components
+│   │   ├── pages/          # Dashboard, Booking, Ticket, Utilities
+│   │   ├── api.js          # API service layer
+│   │   ├── index.css       # Premium Glass-UI design tokens
+│   │   └── App.jsx         # Component root
+│   └── package.json        # JS dependencies
+│
+├── .env                    # Shared Environment variables
+├── README.md               # Overview & Feature summary
+└── procedure.txt           # Setup and Operational Guide
