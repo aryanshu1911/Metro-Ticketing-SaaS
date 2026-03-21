@@ -4,8 +4,6 @@ A modern, full-stack Metro Ticketing System designed as a Software as a Service 
 
 ## 🚀 Key Features
 
-## 🚀 Key Features
-
 - **Hardened Digital Wallet**: Strictly validated top-ups with integrated UPI fallback and backend-led transaction logging.
 - **Precision E-Tickets**: "Official Digital Pass" tickets with dynamic QR generation, Mumbai Metro sync, and 1-hour validity.
 - **Interactive Network Map**: Real-time, multi-line map with Terminal/Interchange indicators and professional transit aesthetics.
