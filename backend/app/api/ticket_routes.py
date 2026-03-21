@@ -19,6 +19,17 @@ class BookingSchema(BaseModel):
     journey_type: str = "single"
     payment_method: str = "wallet"  # 'wallet' or 'upi'
 
+@router.get("/calculate-fare")
+def get_fare(source_id: str, dest_id: str, passengers: int = 1, journey_type: str = "single", db: Session = Depends(get_db)):
+    source = db.query(Station).filter(Station.id == source_id).first()
+    dest = db.query(Station).filter(Station.id == dest_id).first()
+    if not source or not dest:
+        raise HTTPException(status_code=404, detail="Station not found")
+    
+    base_fare = calculate_fare(source.line, source.order_index, dest.line, dest.order_index)
+    total_fare = base_fare * passengers * (2 if journey_type == "return" else 1)
+    return {"fare": total_fare}
+
 @router.post("/book")
 def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
     # Get user
@@ -42,8 +53,8 @@ def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail=f"Insufficient wallet balance. Needed: {total_fare}, Current: {user.wallet_balance}")
         user.wallet_balance -= total_fare
     
-    # Create ticket with 1-hour validity
-    validity_duration = timedelta(hours=1)
+    # Create ticket with 2-hours validity
+    validity_duration = timedelta(hours=2)
     new_ticket = Ticket(
         user_id=user.id,
         source_station_id=source.id,
@@ -62,6 +73,7 @@ def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
         "message": "Ticket booked successfully",
         "ticket_id": str(new_ticket.ticket_id),
         "fare": total_fare,
+        "line": source.line if source else "Metro Network",
         "new_balance": user.wallet_balance,
         "qr_code": new_ticket.qr_code,
         "booked_at": new_ticket.booked_at,
@@ -108,6 +120,7 @@ def get_ticket(ticket_id: str, db: Session = Depends(get_db)):
         "ticket_id": str(ticket.ticket_id),
         "source_name": f"{source.line}: {source.name}" if source else "Unknown",
         "destination_name": f"{dest.line}: {dest.name}" if dest else "Unknown",
+        "line": source.line if source else "Metro Network",
         "fare": ticket.fare,
         "qr_code": ticket.qr_code,
         "passengers": ticket.passengers,
@@ -134,6 +147,7 @@ def get_user_history(phone: str, db: Session = Depends(get_db)):
             "ticket_id": str(t.ticket_id),
             "source_name": f"{source.line}: {source.name}" if source else "Unknown",
             "destination_name": f"{dest.line}: {dest.name}" if dest else "Unknown",
+            "line": source.line if source else "Metro Network",
             "fare": t.fare,
             "passengers": t.passengers,
             "journey_type": t.journey_type,
@@ -142,3 +156,13 @@ def get_user_history(phone: str, db: Session = Depends(get_db)):
             "entry_scanned": t.entry_scanned
         })
     return res
+
+@router.delete("/{ticket_id}")
+def delete_ticket(ticket_id: str, db: Session = Depends(get_db)):
+    ticket = db.query(Ticket).filter(Ticket.ticket_id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    db.delete(ticket)
+    db.commit()
+    return {"message": "Ticket deleted successfully"}

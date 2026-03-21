@@ -12,6 +12,8 @@ export default function Booking() {
   const [destId, setDestId] = useState('');
   const [passengers, setPassengers] = useState(1);
   const [journeyType, setJourneyType] = useState('single');
+  const [estimatedFare, setEstimatedFare] = useState(0);
+  const [fareLoading, setFareLoading] = useState(false);
   
   const [step, setStep] = useState(1); 
   const [loading, setLoading] = useState(true);
@@ -26,56 +28,71 @@ export default function Booking() {
 
   const metroLines = ['Line 1', 'Line 2A', 'Line 3', 'Line 7'];
 
+  // Fetch stations when line changes
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchStations = async () => {
       try {
-        const [stationsRes, walletRes] = await Promise.all([
-          api.get('/stations/'),
-          api.get(`/wallet/balance/${phone}`)
-        ]);
-        
-        setStations(stationsRes.data);
-        setWalletBalance(walletRes.data.balance);
-        
-        const line1Stations = stationsRes.data.filter(s => s.line === 'Line 1');
-        if (line1Stations.length > 0) {
-          setSourceId(line1Stations[0].id);
-          setDestId(line1Stations[line1Stations.length - 1].id);
+        const res = await api.get(`/stations/?line=${selectedLine}`);
+        setStations(res.data);
+        if (res.data.length > 0) {
+          setSourceId(res.data[0].id);
+          setDestId(res.data[res.data.length - 1].id);
         }
       } catch (err) {
-        setError('Failed to load required data.');
-      } finally {
-        setLoading(false);
+        setError('Failed to fetch stations.');
       }
     };
-    fetchInitialData();
+    fetchStations();
+  }, [selectedLine]);
+
+  // Initial data (balance)
+  useEffect(() => {
+    const fetchBalance = async () => {
+       try {
+         const res = await api.get(`/wallet/balance/${phone}`);
+         setWalletBalance(res.data.balance);
+       } catch (err) {
+         setError('Failed to load wallet data.');
+       } finally {
+         setLoading(false);
+       }
+    };
+    fetchBalance();
   }, [phone]);
 
-  const getEstimatedFare = () => {
-    if (!sourceId || !destId || stations.length === 0) return 0;
-    const source = stations.find(s => s.id === sourceId);
-    const dest = stations.find(s => s.id === destId);
-    if (!source || !dest) return 0;
-    
-    // All stations are now on the same line
-    const diff = Math.abs(source.order_index - dest.order_index);
-
-    let base = 40;
-    if (diff <= 3) base = 10;
-    else if (diff <= 7) base = 20;
-    else if (diff <= 11) base = 30;
-    
-    return base * passengers * (journeyType === 'return' ? 2 : 1);
-  };
+  // Calculate fare via API
+  useEffect(() => {
+    const fetchFare = async () => {
+      if (!sourceId || !destId || sourceId === destId) {
+        setEstimatedFare(0);
+        return;
+      }
+      setFareLoading(true);
+      try {
+        const res = await api.get('/tickets/calculate-fare', {
+          params: { 
+            source_id: sourceId, 
+            dest_id: destId, 
+            passengers, 
+            journey_type: journeyType 
+          }
+        });
+        setEstimatedFare(res.data.fare);
+      } catch (err) {
+        console.error('Fare calculation error:', err);
+      } finally {
+        setFareLoading(false);
+      }
+    };
+    fetchFare();
+  }, [sourceId, destId, passengers, journeyType]);
 
   const handleBook = async () => {
     setError('');
     setBooking(true);
     try {
-      const totalFare = getEstimatedFare();
-      
-      if (paymentMethod === 'wallet' && walletBalance < totalFare) {
-        throw new Error(`Insufficient wallet balance. You need ₹${totalFare}.`);
+      if (paymentMethod === 'wallet' && walletBalance < estimatedFare) {
+        throw new Error(`Insufficient wallet balance. You need ₹${estimatedFare}.`);
       }
 
       const res = await api.post('/tickets/book', {
@@ -105,8 +122,6 @@ export default function Booking() {
 
   if (loading) return <div className="page-container"><p style={{textAlign:'center'}}>Loading booking engine...</p></div>;
 
-  const totalFare = getEstimatedFare();
-
   return (
     <div className="page-container" style={{ justifyContent: 'flex-start' }}>
       <TopNav title={step === 1 ? "Plan Journey" : "Checkout"} showBack />
@@ -121,8 +136,8 @@ export default function Booking() {
 
         {step === 1 && (
           <>
-            <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'rgba(79, 70, 229, 0.1)', borderRadius: '1rem', border: '1px solid var(--primary-color)' }}>
-              <label style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: 'bold' }}>SELECT METRO LINE</label>
+            <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '1rem', border: '1px solid var(--glass-border)' }}>
+              <label style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>SELECT METRO LINE</label>
               <select 
                 value={selectedLine} 
                 onChange={(e) => {
@@ -139,39 +154,43 @@ export default function Booking() {
               </select>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>From Station</label>
-                <select value={sourceId} onChange={(e) => setSourceId(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem' }}>
-                  {stations.filter(s => s.line === selectedLine).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
+              <div style={{ width: '100%' }}>
+                <label style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '500' }}>From Station</label>
+                <select value={sourceId} onChange={(e) => setSourceId(e.target.value)}>
+                  {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>To Station</label>
-                <select value={destId} onChange={(e) => setDestId(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem' }}>
-                  {stations.filter(s => s.line === selectedLine).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              <div style={{ width: '100%' }}>
+                <label style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '500' }}>To Station</label>
+                <select value={destId} onChange={(e) => setDestId(e.target.value)}>
+                  {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Travel Type</label>
-                <select value={journeyType} onChange={(e) => setJourneyType(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '2.5rem' }}>
+              <div style={{ width: '100%' }}>
+                <label style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '500' }}>Travel Type</label>
+                <select value={journeyType} onChange={(e) => setJourneyType(e.target.value)}>
                   <option value="single">Single Journey</option>
                   <option value="return">Return Journey</option>
                 </select>
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Count</label>
-                <select value={passengers} onChange={(e) => setPassengers(Number(e.target.value))} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem' }}>
+              <div style={{ width: '100%' }}>
+                <label style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '500' }}>Count</label>
+                <select value={passengers} onChange={(e) => setPassengers(Number(e.target.value))}>
                   {[1,2,3,4,5,6].map(num => <option key={num} value={num}>{num} {num > 1 ? '' : ''}</option>)}
                 </select>
               </div>
             </div>
 
-            <button className="btn-primary" onClick={() => (sourceId === destId) ? setError("Same stations!") : setStep(2)}>
-              Check Fare (₹{totalFare})
+            <button 
+              className="btn-primary" 
+              disabled={fareLoading || !sourceId || !destId || sourceId === destId}
+              onClick={() => setStep(2)}
+            >
+              {fareLoading ? 'Calculating...' : `Check Fare (₹${estimatedFare})`}
             </button>
           </>
         )}
@@ -239,7 +258,7 @@ export default function Booking() {
               borderTop: '2px solid var(--glass-border)' 
             }}>
               <span style={{ fontSize: '1.1rem' }}>Total Amount</span>
-              <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>₹{totalFare}</span>
+              <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>₹{estimatedFare}</span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
@@ -259,9 +278,9 @@ export default function Booking() {
 
         {step === 2 && showUpiQR && (
           <div style={{ textAlign: 'center' }}>
-            <h3 style={{ marginBottom: '1.5rem' }}>Scan to Pay ₹{totalFare}</h3>
+            <h3 style={{ marginBottom: '1.5rem' }}>Scan to Pay ₹{estimatedFare}</h3>
              <div style={{ background: 'white', padding: '1.2rem', borderRadius: '1.2rem', display: 'inline-block', marginBottom: '1.5rem' }}>
-                <QRCode value={`upi://pay?pa=metro@upi&pn=Metro&am=${totalFare}&cu=INR`} size={180} />
+                <QRCode value={`upi://pay?pa=metro@upi&pn=Metro&am=${estimatedFare}&cu=INR`} size={180} />
              </div>
              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '2rem' }}>
                After successful payment in your UPI app, click below:

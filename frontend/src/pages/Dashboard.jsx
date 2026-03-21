@@ -39,13 +39,13 @@ export default function Dashboard() {
   return (
     <div className="page-container">
       <TopNav title="" />
-      
+
       <div style={{ padding: '0 1rem', maxWidth: '100%' }}>
-        <h2 style={{ fontSize: '1.8rem', marginBottom: '2rem' }}>Welcome back,</h2>
-        
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Welcome back,</h2>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '1.5rem',
           marginBottom: '2rem',
           width: '100%'
@@ -59,8 +59,8 @@ export default function Dashboard() {
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate(item.path)}
               className="glass-card"
-              style={{ 
-                padding: '1.5rem', 
+              style={{
+                padding: '1.5rem',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
@@ -70,8 +70,8 @@ export default function Dashboard() {
                 border: `1px solid ${item.color}22`
               }}
             >
-              <div style={{ 
-                fontSize: '2rem', 
+              <div style={{
+                fontSize: '2rem',
                 background: `${item.color}22`,
                 width: '45px',
                 height: '45px',
@@ -91,16 +91,16 @@ export default function Dashboard() {
           ))}
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="glass-card"
-          style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(79, 70, 229, 0.1)' }}
+          style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--accent-bg)' }}
         >
           <div style={{ fontSize: '1.5rem' }}>📢</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>
-            <strong>System Update:</strong> Reach any station on Line 1 with your digital QR.
+          <div style={{ fontSize: '1rem', color: 'var(--text-light)' }}>
+            <strong>System Update:</strong> Now book for Mumbai Metro Lines 1, 2A, 3, & 7 seamlessly.
           </div>
         </motion.div>
       </div>

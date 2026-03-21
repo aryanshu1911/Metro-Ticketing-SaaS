@@ -5,10 +5,32 @@ from app.database.db import engine
 
 def migrate_and_seed():
     lines = {
-        "Line 1": ["Ghatkopar", "Jagruti Nagar", "Asalpha", "Saki Naka", "Marol Naka", "Airport Road", "Chakala", "Western Express Highway", "Andheri", "Azad Nagar", "D.N. Nagar", "Versova"],
-        "Line 2A": ["Dahisar East", "Anand Nagar", "Kandarpada", "Mandapeshwar", "Eksar", "Borivali West", "Pahadi Eksar", "Kandivali West", "Dhanukarwadi", "Valnai", "Mith Chowki", "Lower Malad", "Lower Oshiwara", "Oshiwara", "Goregaon West", "Bangur Nagar", "D.N. Nagar"],
-        "Line 7": ["Dahisar East", "Ovaripada", "National Park", "Devipada", "Magathane", "Poisar", "Akurli", "Kurar", "Dindoshi", "Aarey", "JVLR", "Shankarwadi", "Mogra", "Gundavali"],
-        "Line 3": ["Aarey Colony", "SEEPZ", "MIDC", "Marol Naka", "CSMIA T2", "Sahar Road", "CSMIA T1", "Santacruz", "Vidyanagari", "BKC", "Dharavi", "Shitladevi", "Dadar", "Siddhivinayak", "Worli", "Acharya Atre Chowk", "Science Museum", "Mahalaxmi", "Mumbai Central", "Grant Road", "Girgaon", "Kalbadevi", "CSMT", "Hutatma Chowk", "Churchgate", "Vidhan Bhavan", "Cuffe Parade"]
+        "Line 1": [
+            "Ghatkopar", "Jagruti Nagar", "Asalpha", "Saki Naka", "Marol Naka", "Airport Road", 
+            "Chakala (JB Nagar)", "Western Express Highway", "Andheri", "Azad Nagar", 
+            "D.N. Nagar", "Versova"
+        ],
+        "Line 2A": [
+            "Dahisar East", "Anand Nagar", "Kandarpada", "Mandapeshwar (IC Colony)", 
+            "Eksar", "Borivali West", "Pahadi Eksar (Shimpoli)", "Kandivali West", 
+            "Dahanukarwadi", "Valnai (Meeth Chowky)", "Malad West", "Lower Malad", 
+            "Pahadi Goregaon (Bangur Nagar)", "Goregaon West", "Oshiwara", 
+            "Lower Oshiwara", "Andheri West"
+        ],
+        "Line 7": [
+            "Dahisar East", "Ovaripada", "Rashtriya Udyan (National Park)", "Devipada", 
+            "Magathane", "Poisar", "Akurli", "Kurar", "Dindoshi", "Aarey", 
+            "Goregaon East", "Jogeshwari East", "Mogra", "Gundavali"
+        ],
+        "Line 3": [
+            "Aarey JVLR", "SEEPZ", "MIDC-Andheri", "Marol Naka", "CSMIA-T2", 
+            "Sahar Road", "CSMIA-T1", "Santacruz Metro", "Bandra Colony", 
+            "Bandra Kurla Complex (BKC)", "Dharavi", "Shitala Devi Temple", "Dadar", 
+            "Shree Siddhivinayak Temple", "Worli", "Acharya Atre Chowk", "Science Centre", 
+            "Mahalaxmi", "Jagannath Shankar Sheth (Mumbai Central)", "Grant Road", 
+            "Girgaon", "Kalbadevi", "Chhatrapati Shivaji Maharaj Terminus (CSMT)", 
+            "Hutatma Chowk", "Churchgate", "Vidhan Bhavan", "Cuffe Parade"
+        ]
     }
 
     with engine.connect() as conn:

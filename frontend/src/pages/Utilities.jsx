@@ -117,6 +117,18 @@ export function History() {
   const navigate = useNavigate();
   const phone = localStorage.getItem('phone');
 
+  const handleDelete = async (e, ticketId) => {
+    e.stopPropagation(); // Prevent navigating to ticket view
+    if (!window.confirm('Are you sure you want to delete this ticket from history?')) return;
+    
+    try {
+      await api.delete(`/tickets/${ticketId}`);
+      setTickets(prev => prev.filter(t => t.ticket_id !== ticketId));
+    } catch (err) {
+      alert('Failed to delete ticket.');
+    }
+  };
+
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -150,9 +162,18 @@ export function History() {
                 onClick={() => navigate(`/ticket/${ticket.ticket_id}`)}
                 style={{ cursor: 'pointer', padding: '1.25rem', borderLeft: '4px solid var(--primary-color)' }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
                   <strong>{ticket.journey_type}</strong>
-                  <span style={{ color: 'var(--primary-color)' }}>₹{ticket.fare}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>₹{ticket.fare}</span>
+                    <button 
+                      onClick={(e) => handleDelete(e, ticket.ticket_id)}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '1.1rem', padding: '0.2rem', display: 'flex', alignItems: 'center' }}
+                      title="Delete Ticket"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '0.2rem' }}>
                   {ticket.source_name?.split(': ').pop()} ➔ {ticket.destination_name?.split(': ').pop()}
@@ -178,7 +199,7 @@ export function Profile() {
       <TopNav title="My Profile" showBack />
       <div className="glass-card">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ width: '80px', height: '80px', background: 'var(--primary-color)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 1rem' }}>
+          <div style={{ width: '80px', height: '80px', background: 'var(--profile-avatar-bg)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 1rem', border: '1px solid var(--glass-border)' }}>
             👤
           </div>
           <h2 style={{ margin: 0 }}>Active User</h2>
@@ -242,32 +263,30 @@ export function Support() {
 }
 export function MetroNetwork() {
   const [selectedLine, setSelectedLine] = useState('Line 1');
+  const [stations, setStations] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const lines = {
-    'Line 1': {
-      color: '#4F46E5', // Blue
-      stations: ["Ghatkopar", "Jagruti Nagar", "Asalpha", "Saki Naka", "Marol Naka", "Airport Road", "Chakala", "Western Express Highway", "Andheri", "Azad Nagar", "D.N. Nagar", "Versova"]
-    },
-    'Line 2A': {
-      color: '#F59E0B', // Yellow
-      stations: ["Dahisar East", "Anand Nagar", "Kandarpada", "Mandapeshwar", "Eksar", "Borivali West", "Pahadi Eksar", "Kandivali West", "Dhanukarwadi", "Valnai", "Mith Chowki", "Lower Malad", "Lower Oshiwara", "Oshiwara", "Goregaon West", "Bangur Nagar", "D.N. Nagar"]
-    },
-    'Line 7': {
-      color: '#EF4444', // Red
-      stations: ["Dahisar East", "Ovaripada", "National Park", "Devipada", "Magathane", "Poisar", "Akurli", "Kurar", "Dindoshi", "Aarey", "JVLR", "Shankarwadi", "Mogra", "Gundavali"]
-    },
-    'Line 3': {
-      color: '#06B6D4', // Aqua
-      stations: [
-        "Aarey Colony", "SEEPZ", "MIDC", "Marol Naka", "CSMIA T2", "Sahar Road", 
-        "CSMIA T1", "Santacruz", "Vidyanagari", "BKC", "Dharavi", "Shitladevi", 
-        "Dadar", "Siddhivinayak", "Worli", "Acharya Atre Chowk", "Science Museum", 
-        "Mahalaxmi", "Mumbai Central", "Grant Road", "Girgaon", "Kalbadevi", 
-        "CSMT", "Hutatma Chowk", "Churchgate", "Vidhan Bhavan", "Cuffe Parade"
-      ]
-    }
-    
+    'Line 1': { color: '#4F46E5' },
+    'Line 2A': { color: '#F59E0B' },
+    'Line 7': { color: '#EF4444' },
+    'Line 3': { color: '#06B6D4' }
   };
+
+  useEffect(() => {
+    const fetchStations = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get(`/stations/?line=${selectedLine}`);
+        setStations(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStations();
+  }, [selectedLine]);
 
   const currentLine = lines[selectedLine];
 
@@ -300,51 +319,52 @@ export function MetroNetwork() {
       </div>
 
       <div className="glass-card" style={{ padding: '1.5rem' }}>
-        <h3 style={{ marginBottom: '1.5rem', textAlign: 'center', color: currentLine.color }}>
-          {selectedLine}: {currentLine.stations[0]} - {currentLine.stations[currentLine.stations.length - 1]}
-        </h3>
-        
-        <div style={{ position: 'relative', padding: '1rem 0' }}>
-          <div style={{ 
-            position: 'absolute', 
-            left: '25px', 
-            top: '0', 
-            bottom: '0', 
-            width: '4px', 
-            background: currentLine.color, 
-            borderRadius: '2px',
-            opacity: 0.3
-          }}></div>
+        {loading ? (
+          <p style={{ textAlign: 'center' }}>Loading stations...</p>
+        ) : (
+          <>
+            <h3 style={{ marginBottom: '1.5rem', textAlign: 'center', color: currentLine.color }}>
+              {selectedLine}: {stations[0]?.name} - {stations[stations.length - 1]?.name}
+            </h3>
+            
+            <div style={{ position: 'relative', padding: '1rem 0' }}>
+              <div style={{ 
+                position: 'absolute', 
+                left: '25px', 
+                top: '0', 
+                bottom: '0', 
+                width: '4px', 
+                background: currentLine.color, 
+                borderRadius: '2px',
+                opacity: 0.3
+              }}></div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
-            {currentLine.stations.map((name, i) => (
-              <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <div style={{ 
-                  width: '14px', 
-                  height: '14px', 
-                  borderRadius: '50%', 
-                  background: currentLine.color, 
-                  border: '3px solid white',
-                  boxShadow: `0 0 10px ${currentLine.color}88`,
-                  zIndex: 2
-                }}></div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{name}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {i === 0 || i === currentLine.stations.length - 1 ? 'Terminal' : (
-                      (name === 'D.N. Nagar' || name === 'Marol Naka' || name === 'Dahisar East') ? 'Interchange Station' : 'Stop'
-                    )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
+                {stations.map((s, i) => (
+                  <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                    <div style={{ 
+                      width: '14px', 
+                      height: '14px', 
+                      borderRadius: '50%', 
+                      background: currentLine.color, 
+                      border: '3px solid white',
+                      boxShadow: `0 0 10px ${currentLine.color}88`,
+                      zIndex: 2
+                    }}></div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{s.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        {i === 0 || i === stations.length - 1 ? 'Terminal' : (
+                          (s.name === 'D.N. Nagar' || s.name === 'Marol Naka' || s.name === 'Dahisar East') ? 'Interchange Station' : 'Stop'
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                {(name === 'D.N. Nagar' || name === 'Marol Naka' || name === 'Dahisar East') && (
-                  <div style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', padding: '0.2rem 0.5rem', borderRadius: '1rem' }}>
-                    🔄 Interchange
-                  </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

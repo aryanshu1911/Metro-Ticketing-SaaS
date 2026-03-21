@@ -40,7 +40,7 @@ export default function TopNav({ title = "", showBack = false }) {
             Back
           </button>
         ) : (
-          <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--primary-color)', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--primary-color)', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>
             Mumbai Metro Ticketing System
           </div>
         )}

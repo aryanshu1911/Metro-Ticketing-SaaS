@@ -59,7 +59,7 @@ export default function Ticket() {
   const sourceStation = ticket.stations?.find(s => s.id === (ticket.source_station_id || ticket.sourceId));
   const destStation = ticket.stations?.find(s => s.id === (ticket.destination_station_id || ticket.destId));
   
-  const lineName = sourceStation?.line || destStation?.line || 'Metro Network';
+  const lineName = ticket.line || 'Metro Network';
   const sourceName = sourceStation?.name || ticket.source_name?.split(': ').pop() || 'Unknown';
   const destName = destStation?.name || ticket.destination_name?.split(': ').pop() || 'Unknown';
 
