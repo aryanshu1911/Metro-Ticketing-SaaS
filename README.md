@@ -2,6 +2,8 @@
 
 A modern, full-stack Metro Ticketing System designed as a Software as a Service (SaaS). It provides a seamless experience for users to book tickets, manage their digital wallet, and use QR-based e-tickets for metro travel.
 
+---
+
 ## 🚀 Key Features
 
 - **Hardened Digital Wallet**: Strictly validated top-ups with integrated UPI fallback and backend-led transaction logging.
@@ -11,18 +13,19 @@ A modern, full-stack Metro Ticketing System designed as a Software as a Service 
 - **Secure Authentication**: Robust JWT-based registration system with mandatory secondary mPIN protection.
 - **Premium UI/UX**: High-contrast, mobile-first design system with Glassmorphism and seamless light/dark mode support.
 
+---
+
 ## 🛠️ Tech Stack
 
-| Layer          | Technology                          | Key Purpose / Feature                   |
-|----------------|-------------------------------------|-----------------------------------------|
-| **Backend**    | FastAPI (Python 3.10+)              | High-performance asynchronous API       |
-| **Database**   | PostgreSQL                          | Robust Relational Data Storage         |
-| **ORM**        | SQLAlchemy                          | Secure Database Interaction & Models   |
-| **Security**   | Python-JOSE & Passlib               | JWT Authentication & mPIN Hashing      |
-| **Frontend**   | React.js (Vite)                     | Modern, Reactive User Interface        |
-| **Animation**  | Framer Motion                       | Premium Micro-animations & Transitions |
-| **Styling**    | Custom CSS                          | Glassmorphism & System Theme Support   |
-| **API Client** | Axios / Custom Wrapper              | Standardized Backend Communication     |
+- **Frontend**: React.js (Vite)
+- **Backend**: FastAPI (Python)
+- **Database**: PostgreSQL with SQLAlchemy
+- **Authentication**: JWT (JSON Web Tokens)
+- **Styling**: Vanilla CSS (Modern Glassmorphism)
+- **Icons & QR**: SVG Icons + QRCode Generation
+- **API Client**: Axios
+
+---
 
 ## 📥 Installation
 
@@ -44,6 +47,8 @@ A modern, full-stack Metro Ticketing System designed as a Software as a Service 
 1. Navigate to the frontend folder: `cd frontend`
 2. Install dependencies: `npm install`
 
+---
+
 ## 🏃 Running the Application
 
 ### Start Backend
@@ -59,4 +64,3 @@ npm run dev
 ```
 
 The app will be available at `http://localhost:5173`.
-
