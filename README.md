@@ -1,10 +1,6 @@
 # 🚉 Metro Ticketing Platform (SaaS)
 
-**A simple, fast, and secure way to travel. From booking to boarding, we've got you covered.**
-
----
-
-Our Metro Ticketing System is a modern, all-in-one platform built to make city travel easier for everyone. Think of it as a digital companion for your daily commute. Whether you're topping up your in-app wallet, checking out the real-time Mumbai Metro map, or using a dynamic QR code to skip the ticket lines, everything is designed to be seamless. Built with reliable tech like FastAPI and React, we ensure your payments are secure and your tickets are always ready when you need them. It's not just a ticketing app; it's a complete Software-as-a-Service (SaaS) solution for a smarter, smoother city life.
+This Metro Ticketing System is a modern, all-in-one platform built to make city travel easier for everyone. Think of it as a digital companion for your daily commute. Whether you're topping up your in-app wallet, checking out the real-time Mumbai Metro map, or using a dynamic QR code to skip the ticket lines, everything is designed to be seamless. Built with reliable tech like FastAPI and React, we ensure your payments are secure and your tickets are always ready when you need them. It's not just a ticketing app; it's a complete Software-as-a-Service (SaaS) solution for a smarter, smoother city life.
 
 ---
 
