@@ -1,51 +1,51 @@
-# Metro Ticketing SaaS
+# 🚉 Metro Ticketing SaaS
 
-A modern, full-stack Metro Ticketing System designed as a Software as a Service (SaaS). It provides a seamless experience for users to book tickets, manage their digital wallet, and use QR-based e-tickets for metro travel.
+![Banner](readme_banner_1774109264336.png)
+
+A modern, full-stack Metro Ticketing System designed for high-performance transit operations.  
+Built with **FastAPI**, **React**, and **PostgreSQL**.
 
 ---
 
 ## 🚀 Key Features
 
-- **Hardened Digital Wallet**: Strictly validated top-ups with integrated UPI fallback and backend-led transaction logging.
-- **Precision E-Tickets**: "Official Digital Pass" tickets with dynamic QR generation, Mumbai Metro sync, and 1-hour validity.
-- **Interactive Network Map**: Real-time, multi-line map with Terminal/Interchange indicators and professional transit aesthetics.
-- **Unified Activity Passbook**: A centralized dashboard for tracking both Travel Logs (Tickets) and Financial Records (Top-ups).
-- **Secure Authentication**: Robust JWT-based registration system with mandatory secondary mPIN protection.
-- **Premium UI/UX**: High-contrast, mobile-first design system with Glassmorphism and seamless light/dark mode support.
+- 💠 **Hardened Digital Wallet**: Strictly validated top-ups with integrated UPI fallback and backend-led transaction logging.
+- 🎫 **Precision E-Tickets**: "Official Digital Pass" tickets with dynamic QR generation and 1-hour validity.
+- 🗺️ **Interactive Network Map**: Real-time, multi-line map with Terminal/Interchange indicators and professional transit aesthetics.
+- 📖 **Unified Activity Passbook**: A centralized dashboard for tracking both Travel Logs (Tickets) and Financial Records (Top-ups).
+- 🔐 **Secure Authentication**: Robust JWT-based registration system with mandatory secondary mPIN protection.
+- 🎨 **Premium UI/UX**: High-contrast, mobile-first design system with Glassmorphism and seamless light/dark mode support.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React.js (Vite)
-- **Backend**: FastAPI (Python)
-- **Database**: PostgreSQL with SQLAlchemy
-- **Authentication**: JWT (JSON Web Tokens)
-- **Styling**: Vanilla CSS (Modern Glassmorphism)
-- **Icons & QR**: SVG Icons + QRCode Generation
-- **API Client**: Axios
+- **Frontend**: React.js (Vite) + Framer Motion
+- **Backend**: FastAPI (Python 3.10+) 🐍
+- **Database**: PostgreSQL + SQLAlchemy 🐘
+- **Security**: JWT (JSON Web Tokens) 🔐
+- **Styling**: Vanilla CSS (Modern Glassmorphism) 🎨
+- **Communication**: Axios 📡
 
 ---
 
 ## 📥 Installation
 
-### Prerequisites
-- Python 3.10 or higher
-- Node.js (v18+) and npm
-- PostgreSQL
-
 ### 1. Backend Setup
-1. Navigate to the backend folder: `cd backend`
-2. Create a virtual environment: `python -m venv venv`
-3. Activate the venv:
-   - Windows: `.\venv\Scripts\activate`
-   - Mac/Linux: `source venv/bin/activate`
-4. Install dependencies: `pip install -r requirements.txt`
-5. Configure `.env` in the root directory with your PostgreSQL credentials.
+```bash
+cd backend
+python -m venv venv
+# Activate venv: .\venv\Scripts\activate (Windows) or source venv/bin/activate (Mac)
+pip install -r requirements.txt
+```
+> [!IMPORTANT]
+> Configure `.env` in the root directory with your PostgreSQL credentials.
 
 ### 2. Frontend Setup
-1. Navigate to the frontend folder: `cd frontend`
-2. Install dependencies: `npm install`
+```bash
+cd frontend
+npm install
+```
 
 ---
 
@@ -63,4 +63,6 @@ cd frontend
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`.
+---
+
+💡 **Tip**: Full detailed project structure can be found in [structure.txt](structure.txt).
