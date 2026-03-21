@@ -112,77 +112,157 @@ export function Wallet() {
 }
 
 export function History() {
+  const [activeTab, setActiveTab] = useState('travel');
   const [tickets, setTickets] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const phone = localStorage.getItem('phone');
 
-  const handleDelete = async (e, ticketId) => {
-    e.stopPropagation(); // Prevent navigating to ticket view
-    if (!window.confirm('Are you sure you want to delete this ticket from history?')) return;
-    
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      await api.delete(`/tickets/${ticketId}`);
-      setTickets(prev => prev.filter(t => t.ticket_id !== ticketId));
+      if (activeTab === 'travel') {
+        const res = await api.get(`/tickets/history/${phone}`);
+        setTickets(res.data);
+      } else {
+        const res = await api.get(`/wallet/transactions/${phone}`);
+        setTransactions(res.data);
+      }
     } catch (err) {
-      alert('Failed to delete ticket.');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await api.get(`/tickets/history/${phone}`);
-        setTickets(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHistory();
-  }, [phone]);
+    fetchData();
+  }, [phone, activeTab]);
+
+  const handleDeleteTicket = async (e, ticketId) => {
+    e.stopPropagation();
+    if (!window.confirm('Delete this ticket from history?')) return;
+    try {
+      await api.delete(`/tickets/${ticketId}`);
+      setTickets(prev => prev.filter(t => t.ticket_id !== ticketId));
+    } catch (err) {
+      alert('Failed to delete.');
+    }
+  };
 
   return (
     <div className="page-container" style={{ justifyContent: 'flex-start' }}>
-      <TopNav title="My Tickets" showBack />
+      <TopNav title="History & Activity" showBack />
       
-      {loading ? <p style={{ textAlign: 'center' }}>Loading history...</p> : (
+      {/* Tab Switcher */}
+      <div style={{ display: 'flex', background: 'var(--glass-bg)', borderRadius: '1rem', padding: '0.3rem', marginBottom: '1.5rem', border: '1px solid var(--glass-border)' }}>
+        <button 
+          onClick={() => setActiveTab('travel')}
+          style={{ 
+            flex: 1, padding: '0.75rem', borderRadius: '0.8rem', border: 'none', 
+            background: activeTab === 'travel' ? 'var(--primary-color)' : 'transparent',
+            color: activeTab === 'travel' ? 'white' : 'var(--text-muted)',
+            fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s'
+          }}
+        >
+          🎫 Travel
+        </button>
+        <button 
+          onClick={() => setActiveTab('payments')}
+          style={{ 
+            flex: 1, padding: '0.75rem', borderRadius: '0.8rem', border: 'none', 
+            background: activeTab === 'payments' ? 'var(--primary-color)' : 'transparent',
+            color: activeTab === 'payments' ? 'white' : 'var(--text-muted)',
+            fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s'
+          }}
+        >
+          💳 Payments
+        </button>
+      </div>
+      
+      {loading ? <p style={{ textAlign: 'center' }}>Loading activity...</p> : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {tickets.length === 0 ? (
-            <div className="glass-card" style={{ textAlign: 'center' }}>
-              <p>No tickets booked yet.</p>
-              <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => navigate('/book')}>Book Now</button>
-            </div>
-          ) : (
-            tickets.map(ticket => (
-              <div 
-                key={ticket.id} 
-                className="glass-card" 
-                onClick={() => navigate(`/ticket/${ticket.ticket_id}`)}
-                style={{ cursor: 'pointer', padding: '1.25rem', borderLeft: '4px solid var(--primary-color)' }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
-                  <strong>{ticket.journey_type}</strong>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>₹{ticket.fare}</span>
-                    <button 
-                      onClick={(e) => handleDelete(e, ticket.ticket_id)}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '1.1rem', padding: '0.2rem', display: 'flex', alignItems: 'center' }}
-                      title="Delete Ticket"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '0.2rem' }}>
-                  {ticket.source_name?.split(': ').pop()} ➔ {ticket.destination_name?.split(': ').pop()}
-                </div>
-                <div style={{ fontSize: '0.7rem', marginTop: '0.5rem', opacity: 0.6 }}>
-                  {ticket.booked_at ? new Date(ticket.booked_at).toLocaleString() : 'N/A'} • {ticket.passengers} pax
-                </div>
+          {activeTab === 'travel' ? (
+            tickets.length === 0 ? (
+              <div className="glass-card" style={{ textAlign: 'center' }}>
+                <p>No tickets booked yet.</p>
+                <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => navigate('/book')}>Book Now</button>
               </div>
-            ))
+            ) : (
+              tickets.map(ticket => (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+                  key={ticket.ticket_id} 
+                  className="glass-card" 
+                  onClick={() => navigate(`/ticket/${ticket.ticket_id}`)}
+                  style={{ cursor: 'pointer', padding: '1.25rem', borderLeft: '4px solid var(--primary-color)' }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
+                    <strong>{ticket.journey_type}</strong>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>₹{ticket.fare}</span>
+                      <button 
+                        onClick={(e) => handleDeleteTicket(e, ticket.ticket_id)}
+                        className="btn-delete"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '0.2rem' }}>
+                    {ticket.source_name?.split(': ').pop()} ➔ {ticket.destination_name?.split(': ').pop()}
+                  </div>
+                  <div style={{ fontSize: '0.7rem', marginTop: '0.5rem', opacity: 0.6 }}>
+                    {new Date(ticket.booked_at).toLocaleString()} • {ticket.passengers} pax
+                  </div>
+                </motion.div>
+              ))
+            )
+          ) : (
+            transactions.length === 0 ? (
+              <div className="glass-card" style={{ textAlign: 'center' }}>
+                <p>No transactions found.</p>
+                <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => navigate('/wallet')}>Top-up Wallet</button>
+              </div>
+            ) : (
+              transactions.map(tx => (
+                <motion.div 
+                  initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+                  key={tx.id} className="glass-card" style={{ padding: '1.25rem' }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ 
+                        width: '40px', height: '40px', borderRadius: '50%', 
+                        background: tx.type === 'TOP_UP' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem'
+                      }}>
+                        {tx.type === 'TOP_UP' ? '💰' : '🎫'}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{tx.type.replace('_', ' ')}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{tx.description}</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ 
+                        fontWeight: 'bold', 
+                        fontSize: '1rem', 
+                        color: tx.amount > 0 ? 'var(--success)' : 'var(--danger)' 
+                      }}>
+                        {tx.amount > 0 ? '+' : ''}₹{Math.abs(tx.amount)}
+                      </div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                        {new Date(tx.timestamp).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )
           )}
         </div>
       )}
@@ -228,20 +308,6 @@ export function Profile() {
         >
           Logout Account
         </button>
-      </div>
-    </div>
-  );
-}
-
-export function Transactions() {
-  const navigate = useNavigate();
-  return (
-    <div className="page-container" style={{ justifyContent: 'flex-start' }}>
-      <TopNav title="Transactions" showBack />
-      <div className="glass-card" style={{ textAlign: 'center' }}>
-        <h3 style={{ color: 'var(--text-muted)' }}>Payment History</h3>
-        <p>Your recent wallet top-ups will appear here.</p>
-        <button className="btn-primary" onClick={() => navigate('/dashboard')} style={{ marginTop: '2rem' }}>Back</button>
       </div>
     </div>
   );
@@ -341,7 +407,7 @@ export function MetroNetwork() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
                 {stations.map((s, i) => (
-                  <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                  <div key={s.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
                     <div style={{ 
                       width: '14px', 
                       height: '14px', 
@@ -349,10 +415,11 @@ export function MetroNetwork() {
                       background: currentLine.color, 
                       border: '3px solid white',
                       boxShadow: `0 0 10px ${currentLine.color}88`,
-                      zIndex: 2
+                      zIndex: 2,
+                      marginTop: '4px'
                     }}></div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{s.name}</div>
+                      <div style={{ fontWeight: '600', fontSize: '0.95rem', lineHeight: '1.4' }}>{s.name}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                         {i === 0 || i === stations.length - 1 ? 'Terminal' : (
                           (s.name === 'D.N. Nagar' || s.name === 'Marol Naka' || s.name === 'Dahisar East') ? 'Interchange Station' : 'Stop'

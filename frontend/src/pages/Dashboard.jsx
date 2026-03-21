@@ -29,10 +29,9 @@ export default function Dashboard() {
 
   const menuItems = [
     { title: 'Book Ticket', icon: '🎫', path: '/book', color: '#4F46E5', desc: 'New Journey' },
-    { title: 'My Tickets', icon: '📖', path: '/history', color: '#10B981', desc: 'View Active' },
+    { title: 'History & Activity', icon: '🕒', path: '/history', color: '#10B981', desc: 'Tickets & Payments' },
     { title: 'Wallet', icon: '💳', path: '/wallet', color: '#F59E0B', desc: `Balance: ₹${balance}` },
     { title: 'Metro Map', icon: '🗺️', path: '/map', color: '#6366F1', desc: 'Network View' },
-    { title: 'Transaction History', icon: '🕒', path: '/transactions', color: '#EC4899', desc: 'Payment Logs' },
     { title: 'Support', icon: '🎧', path: '/support', color: '#8B5CF6', desc: '24/7 Help' },
   ];
 
@@ -41,7 +40,7 @@ export default function Dashboard() {
       <TopNav title="" />
 
       <div style={{ padding: '0 1rem', maxWidth: '100%' }}>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Welcome back,</h2>
+        <h2 style={{ fontSize: '1.6rem', marginBottom: '2rem' }}>Welcome back,</h2>
 
         <div style={{
           display: 'grid',

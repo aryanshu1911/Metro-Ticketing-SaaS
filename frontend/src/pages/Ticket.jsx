@@ -68,70 +68,104 @@ export default function Ticket() {
       <TopNav title="" showBack />
       
       <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="glass-card"
         style={{ 
-          textAlign: 'center', 
-          position: 'relative', 
-          overflow: 'hidden',
           width: '100%',
-          maxWidth: '450px'
+          maxWidth: '380px',
+          background: 'var(--bg-dark)',
+          borderRadius: '1.5rem',
+          overflow: 'hidden',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+          border: '1px solid var(--glass-border)'
         }}
       >
-
-        <div style={{ position: 'absolute', top: '150px', left: '-20px', width: '40px', height: '40px', background: 'var(--bg-dark)', borderRadius: '50%' }}></div>
-        <div style={{ position: 'absolute', top: '150px', right: '-20px', width: '40px', height: '40px', background: 'var(--bg-dark)', borderRadius: '50%' }}></div>
-
-        <h2 style={{ margin: 0, color: 'var(--text-muted)' }}>Metro E-Ticket</h2>
-        <p style={{ margin: '0.4rem 0 0 0', fontSize: '1rem', color: 'var(--primary-color)', textTransform: 'uppercase', fontWeight: 'bold' }}>
-          {ticket.journey_type} • {ticket.passengers} Passenger{ticket.passengers > 1 ? 's' : ''}
-        </p>
-        <p style={{ margin: '0.2rem 0 0 0', fontSize: '1rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-          ID: {id ? id.split('-')[0].toUpperCase() : 'N/A'}
-        </p>
-
-        <div style={{ marginTop: '1.2rem', padding: '0.4rem 1rem', background: 'rgba(79, 70, 229, 0.1)', borderRadius: '0.75rem', display: 'inline-block', color: 'var(--primary-color)', fontWeight: 'bold', fontSize: '1rem', textTransform: 'uppercase' }}>
-          {lineName}
-        </div>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '1.5rem 0' }}>
-          <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>From</span>
-            <strong style={{ fontSize: '1.4rem' }}>{sourceName}</strong>
+        {/* Top Header */}
+        <div style={{ background: 'var(--primary-color)', padding: '1.25rem 1rem', textAlign: 'center' }}>
+          <div style={{ display: 'inline-block', padding: '0.2rem 0.8rem', background: 'rgba(255,255,255,0.2)', borderRadius: '1rem', marginBottom: '0.5rem', fontSize: '0.68rem', fontWeight: 'bold', letterSpacing: '0.1em' }}>
+            {lineName.toUpperCase()}
           </div>
-          <div style={{ color: 'var(--primary-color)', fontSize: '1.2rem' }}>➜</div>
-          <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>To</span>
-            <strong style={{ fontSize: '1.4rem' }}>{destName}</strong>
-          </div>
+          <h3 style={{ margin: 0, fontSize: '0.7rem', letterSpacing: '0.2em', fontWeight: '800', opacity: 0.9 }}>MUMBAI METRO</h3>
+          <h2 style={{ margin: '0.1rem 0 0 0', fontSize: '1.1rem', fontWeight: '500' }}>DIGITAL TICKET</h2>
         </div>
 
-        <div style={{ borderTop: '2px dashed var(--glass-border)', margin: '1.5rem -2rem', opacity: 0.5 }}></div>
+        {/* Journey Info */}
+        <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>FROM</span>
+              <strong style={{ fontSize: '1.1rem', letterSpacing: '0.01em' }}>{sourceName}</strong>
+            </div>
+            <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+               <div style={{ fontSize: '1.2rem', color: 'var(--primary-color)' }}>➔</div>
+            </div>
+            <div style={{ flex: 1, textAlign: 'right' }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>TO</span>
+              <strong style={{ fontSize: '1.1rem', letterSpacing: '0.01em' }}>{destName}</strong>
+            </div>
+          </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '1.5rem', textAlign: 'left' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+             <span style={{ color: 'var(--text-muted)' }}>Type: <b>{(ticket.journey_type || ticket.journeyType || 'single').toUpperCase()}</b></span>
+             <span style={{ color: 'var(--text-muted)' }}>Qty: <b>{ticket.passengers || 1}</b></span>
+          </div>
+        </div>
+
+        {/* Separator dots */}
+        <div style={{ position: 'relative', height: '1px', borderTop: '2px dashed var(--glass-border)', margin: '0 1rem', opacity: 0.3 }}>
+           <div style={{ position: 'absolute', top: '-10px', left: '-25px', width: '20px', height: '20px', background: 'var(--bg-dark)', borderRadius: '50%', border: '1px solid var(--glass-border)' }}></div>
+           <div style={{ position: 'absolute', top: '-10px', right: '-25px', width: '20px', height: '20px', background: 'var(--bg-dark)', borderRadius: '50%', border: '1px solid var(--glass-border)' }}></div>
+        </div>
+
+        {/* QR Section */}
+        <div style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
+          <div style={{ background: 'white', padding: '1rem', borderRadius: '1.25rem', display: 'inline-block', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+            <QRCode value={String(ticket.qr_code)} size={180} />
+          </div>
+          <p style={{ marginTop: '1.2rem', fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace', letterSpacing: '0.1em' }}>
+            ID: {id ? id.split('-')[0].toUpperCase() : 'METRO'} - {id ? id.split('-').pop().toUpperCase() : ''}
+          </p>
+          <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+             <div style={{ padding: '0.3rem 0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', borderRadius: '1rem', fontSize: '0.7rem', fontWeight: 'bold' }}>
+               {ticket.entry_scanned ? 'READY FOR EXIT' : 'READY FOR ENTRY'}
+             </div>
+          </div>
+        </div>
+
+        {/* Stub / Valid Section */}
+        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--glass-border)' }}>
           <div>
-            Booked At:<br/>
-            <span style={{ color: 'var(--text-light)' }}>{new Date(ticket.booked_at).toLocaleString()}</span>
+            <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', display: 'block' }}>VALID UNTIL</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{new Date(ticket.valid_till).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
           </div>
           <div style={{ textAlign: 'right' }}>
-            Valid Until:<br/>
-            <span style={{ color: 'var(--text-light)', fontWeight: 'bold' }}>{new Date(ticket.valid_till).toLocaleString()}</span>
+            <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', display: 'block' }}>BOOKED</span>
+            <span style={{ fontSize: '0.8rem' }}>{new Date(ticket.booked_at).toLocaleDateString()}</span>
           </div>
         </div>
 
-        <div style={{ background: 'white', padding: '1.2rem', borderRadius: '1rem', display: 'inline-block', marginBottom: '1rem' }}>
-          <QRCode value={String(ticket.qr_code)} size={200} />
-        </div>
-        
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '0.5rem 0' }}>
-          Scan at turnstile to {ticket.entry_scanned ? 'exit' : 'enter'}
-        </p>
-
-        <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '0.6rem 1.2rem', borderRadius: '2rem', display: 'inline-block', fontWeight: 'bold', fontSize: '1rem', marginTop: '0.5rem' }}>
-          Valid for Metro Journey Only
-        </div>
       </motion.div>
+
+      <button 
+        className="btn-primary" 
+        style={{ 
+          marginTop: '2.5rem', 
+          width: '100%', 
+          maxWidth: '380px', 
+          height: '56px',
+          background: 'var(--primary-color)', 
+          borderRadius: '1rem',
+          fontSize: '1rem',
+          fontWeight: 'bold',
+          color: 'white',
+          boxShadow: '0 10px 20px rgba(79, 70, 229, 0.3)',
+          border: 'none',
+          cursor: 'pointer'
+        }}
+        onClick={() => navigate('/dashboard')}
+      >
+        Back to Dashboard
+      </button>
     </div>
   );
 }

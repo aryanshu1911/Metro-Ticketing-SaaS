@@ -190,7 +190,7 @@ export default function Booking() {
               disabled={fareLoading || !sourceId || !destId || sourceId === destId}
               onClick={() => setStep(2)}
             >
-              {fareLoading ? 'Calculating...' : `Check Fare (₹${estimatedFare})`}
+              {fareLoading ? 'Calculating...' : `Proceed to Checkout (₹${estimatedFare})`}
             </button>
           </>
         )}
@@ -261,16 +261,22 @@ export default function Booking() {
               <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>₹{estimatedFare}</span>
             </div>
 
+            {paymentMethod === 'wallet' && walletBalance < estimatedFare && (
+              <div style={{ color: 'var(--danger)', fontSize: '1rem', marginBottom: '1.5rem', textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', padding: '0.5rem', borderRadius: '0.5rem' }}>
+                ⚠️ Low balance. Top up or use UPI instead.
+              </div>
+            )}
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
               <button className="btn-primary" onClick={() => setStep(1)} style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'var(--text-light)' }}>
-                Edit
+                Back
               </button>
               <button 
                 className="btn-primary" 
                 onClick={() => paymentMethod === 'upi' ? setShowUpiQR(true) : handleBook()}
-                disabled={booking}
+                disabled={booking || (paymentMethod === 'wallet' && walletBalance < estimatedFare)}
               >
-                {paymentMethod === 'upi' ? 'Show UPI QR' : (booking ? 'Processing...' : 'Pay from Wallet')}
+                {paymentMethod === 'upi' ? 'Show UPI QR' : (booking ? 'Processing...' : (walletBalance < estimatedFare ? 'Insufficient Balance' : 'Pay from Wallet'))}
               </button>
             </div>
           </>

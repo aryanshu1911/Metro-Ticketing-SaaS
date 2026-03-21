@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Booking from './pages/Booking';
-import { Wallet, History, Profile, Transactions, Support, MetroNetwork } from './pages/Utilities';
+import { Wallet, History, Profile, Support, MetroNetwork } from './pages/Utilities';
 import Ticket from './pages/Ticket';
 import './index.css';
 
@@ -50,7 +50,6 @@ function App() {
             <Route path="/wallet" element={<PrivateRoute><Wallet /></PrivateRoute>} />
             <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            <Route path="/transactions" element={<PrivateRoute><Transactions /></PrivateRoute>} />
             <Route path="/support" element={<PrivateRoute><Support /></PrivateRoute>} />
             <Route path="/map" element={<PrivateRoute><MetroNetwork /></PrivateRoute>} />
             

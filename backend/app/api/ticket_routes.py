@@ -4,6 +4,7 @@ from ..database.db import get_db
 from ..models.ticket import Ticket
 from ..models.user import User
 from ..models.station import Station
+from ..models.transaction import Transaction
 from ..services.fare_service import calculate_fare
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
@@ -66,6 +67,16 @@ def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
         valid_till=datetime.now(timezone.utc) + validity_duration
     )
     db.add(new_ticket)
+    
+    # Record transaction
+    new_tx = Transaction(
+        user_id=user.id,
+        type="TICKET_BOOKING",
+        amount=-float(total_fare), # Negative for deduction
+        description=f"{source.line}: {source.name} ➔ {dest.name} ({data.passengers} Pax)"
+    )
+    db.add(new_tx)
+
     db.commit()
     db.refresh(new_ticket)
     

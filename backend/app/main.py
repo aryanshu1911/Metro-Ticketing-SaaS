@@ -5,6 +5,14 @@ from app.api.station_routes import router as station_router
 from app.api.wallet_routes import router as wallet_router
 from app.api.ticket_routes import router as ticket_router
 
+from app.database.db import engine, Base
+from app.models.user import User
+from app.models.ticket import Ticket
+from app.models.station import Station
+from app.models.transaction import Transaction
+
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
 app.add_middleware(
