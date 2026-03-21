@@ -1,7 +1,5 @@
 # 🚉 Metro Ticketing SaaS
 
-![Banner](readme_banner_1774109264336.png)
-
 A modern, full-stack Metro Ticketing System designed for high-performance transit operations.  
 Built with **FastAPI**, **React**, and **PostgreSQL**.
 
@@ -21,11 +19,11 @@ Built with **FastAPI**, **React**, and **PostgreSQL**.
 ## 🛠️ Tech Stack
 
 - **Frontend**: React.js (Vite) + Framer Motion
-- **Backend**: FastAPI (Python 3.10+) 🐍
-- **Database**: PostgreSQL + SQLAlchemy 🐘
-- **Security**: JWT (JSON Web Tokens) 🔐
-- **Styling**: Vanilla CSS (Modern Glassmorphism) 🎨
-- **Communication**: Axios 📡
+- **Backend**: FastAPI (Python 3.10+) 
+- **Database**: PostgreSQL + SQLAlchemy 
+- **Security**: JWT (JSON Web Tokens) 
+- **Styling**: Vanilla CSS (Modern Glassmorphism) 
+- **API Client**: Axios
 
 ---
 
