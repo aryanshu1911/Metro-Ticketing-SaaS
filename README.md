@@ -26,8 +26,6 @@ This Metro Ticketing System is a modern, all-in-one platform built to make city 
 
 ---
 
----
-
 ## 📡 API Reference
 
 ### 🔐 Authentication
