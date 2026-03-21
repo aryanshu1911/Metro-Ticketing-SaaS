@@ -7,6 +7,7 @@ import { QRCode } from 'react-qr-code';
 
 export default function Booking() {
   const [stations, setStations] = useState([]);
+  const [selectedLine, setSelectedLine] = useState('Line 1');
   const [sourceId, setSourceId] = useState('');
   const [destId, setDestId] = useState('');
   const [passengers, setPassengers] = useState(1);
@@ -23,6 +24,8 @@ export default function Booking() {
   const navigate = useNavigate();
   const phone = localStorage.getItem('phone');
 
+  const metroLines = ['Line 1', 'Line 2A', 'Line 3', 'Line 7'];
+
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -34,9 +37,10 @@ export default function Booking() {
         setStations(stationsRes.data);
         setWalletBalance(walletRes.data.balance);
         
-        if (stationsRes.data.length > 0) {
-          setSourceId(stationsRes.data[0].id);
-          setDestId(stationsRes.data[stationsRes.data.length - 1].id);
+        const line1Stations = stationsRes.data.filter(s => s.line === 'Line 1');
+        if (line1Stations.length > 0) {
+          setSourceId(line1Stations[0].id);
+          setDestId(line1Stations[line1Stations.length - 1].id);
         }
       } catch (err) {
         setError('Failed to load required data.');
@@ -53,7 +57,9 @@ export default function Booking() {
     const dest = stations.find(s => s.id === destId);
     if (!source || !dest) return 0;
     
+    // All stations are now on the same line
     const diff = Math.abs(source.order_index - dest.order_index);
+
     let base = 40;
     if (diff <= 3) base = 10;
     else if (diff <= 7) base = 20;
@@ -115,17 +121,35 @@ export default function Booking() {
 
         {step === 1 && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'rgba(79, 70, 229, 0.1)', borderRadius: '1rem', border: '1px solid var(--primary-color)' }}>
+              <label style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: 'bold' }}>SELECT METRO LINE</label>
+              <select 
+                value={selectedLine} 
+                onChange={(e) => {
+                  setSelectedLine(e.target.value);
+                  const filtered = stations.filter(s => s.line === e.target.value);
+                  if (filtered.length > 0) {
+                    setSourceId(filtered[0].id);
+                    setDestId(filtered[filtered.length - 1].id);
+                  }
+                }} 
+                style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-dark)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem', fontSize: '1rem' }}
+              >
+                {metroLines.map(line => <option key={line} value={line}>{line}</option>)}
+              </select>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>From Station</label>
-                <select value={sourceId} onChange={(e) => setSourceId(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '0.75rem' }}>
-                  {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                <select value={sourceId} onChange={(e) => setSourceId(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem' }}>
+                  {stations.filter(s => s.line === selectedLine).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>To Station</label>
-                <select value={destId} onChange={(e) => setDestId(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '0.75rem' }}>
-                  {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                <select value={destId} onChange={(e) => setDestId(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem' }}>
+                  {stations.filter(s => s.line === selectedLine).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
             </div>
@@ -133,14 +157,14 @@ export default function Booking() {
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Travel Type</label>
-                <select value={journeyType} onChange={(e) => setJourneyType(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '0.75rem' }}>
+                <select value={journeyType} onChange={(e) => setJourneyType(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem' }}>
                   <option value="single">Single Journey</option>
                   <option value="return">Return Journey</option>
                 </select>
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Count</label>
-                <select value={passengers} onChange={(e) => setPassengers(Number(e.target.value))} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '0.75rem' }}>
+                <select value={passengers} onChange={(e) => setPassengers(Number(e.target.value))} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', borderRadius: '0.75rem' }}>
                   {[1,2,3,4,5,6].map(num => <option key={num} value={num}>{num} {num > 1 ? '' : ''}</option>)}
                 </select>
               </div>
@@ -157,7 +181,7 @@ export default function Booking() {
             <div style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0 }}>Review Order</h3>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                {stations.find(s=>s.id===sourceId)?.name} ➔ {stations.find(s=>s.id===destId)?.name} • {journeyType}
+                {selectedLine}: {stations.find(s=>s.id===sourceId)?.name} ➔ {stations.find(s=>s.id===destId)?.name} • {journeyType}
               </p>
             </div>
 
@@ -219,7 +243,7 @@ export default function Booking() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
-              <button className="btn-primary" onClick={() => setStep(1)} style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'white' }}>
+              <button className="btn-primary" onClick={() => setStep(1)} style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'var(--text-light)' }}>
                 Edit
               </button>
               <button 

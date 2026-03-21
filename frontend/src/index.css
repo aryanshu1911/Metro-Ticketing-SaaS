@@ -9,6 +9,7 @@
   --danger: #ef4444;
   --success: #10b981;
   --card-bg: rgba(30, 41, 59, 0.7);
+  --input-bg: rgba(0, 0, 0, 0.2);
 }
 
 body.light-mode {
@@ -18,6 +19,7 @@ body.light-mode {
   --text-light: #1e293b;
   --text-muted: #64748b;
   --card-bg: rgba(255, 255, 255, 0.8);
+  --input-bg: rgba(255, 255, 255, 0.5);
 }
 
 body {
@@ -43,8 +45,8 @@ body {
 
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: 1.5rem;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
@@ -80,10 +82,10 @@ body {
 input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--input-bg);
   border: 1px solid var(--glass-border);
   border-radius: 0.75rem;
-  color: white;
+  color: var(--text-light);
   font-size: 1rem;
   box-sizing: border-box;
   margin-bottom: 1rem;
@@ -93,7 +95,8 @@ input {
 input:focus {
   outline: none;
   border-color: var(--primary-color);
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--input-bg);
+  opacity: 0.8;
 }
 
 input::placeholder {

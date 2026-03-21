@@ -21,28 +21,28 @@ class BookingSchema(BaseModel):
 
 @router.post("/book")
 def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
-    # 1. Get user
+    # Get user
     user = db.query(User).filter(User.phone == data.phone).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # 2. Get stations
+    # Get stations
     source = db.query(Station).filter(Station.id == data.source_station_id).first()
     dest = db.query(Station).filter(Station.id == data.destination_station_id).first()
     if not source or not dest:
         raise HTTPException(status_code=404, detail="Station not found")
     
-    # 3. Calculate fare
-    base_fare = calculate_fare(source.order_index, dest.order_index)
+    # Calculate fare
+    base_fare = calculate_fare(source.line, source.order_index, dest.line, dest.order_index)
     total_fare = base_fare * data.passengers * (2 if data.journey_type == "return" else 1)
     
-    # 4. Check & Deduct Balance (Only if paying via wallet)
+    # Check & Deduct Balance (Only if paying via wallet)
     if data.payment_method == "wallet":
         if user.wallet_balance < total_fare:
             raise HTTPException(status_code=400, detail=f"Insufficient wallet balance. Needed: {total_fare}, Current: {user.wallet_balance}")
         user.wallet_balance -= total_fare
     
-    # 5. Create ticket with 1-hour validity
+    # Create ticket with 1-hour validity
     validity_duration = timedelta(hours=1)
     new_ticket = Ticket(
         user_id=user.id,
@@ -106,14 +106,15 @@ def get_ticket(ticket_id: str, db: Session = Depends(get_db)):
 
     return {
         "ticket_id": str(ticket.ticket_id),
-        "source_name": source.name if source else "Unknown",
-        "destination_name": dest.name if dest else "Unknown",
+        "source_name": f"{source.line}: {source.name}" if source else "Unknown",
+        "destination_name": f"{dest.line}: {dest.name}" if dest else "Unknown",
         "fare": ticket.fare,
         "qr_code": ticket.qr_code,
         "passengers": ticket.passengers,
         "journey_type": ticket.journey_type,
         "entry_scanned": ticket.entry_scanned,
         "exit_scanned": ticket.exit_scanned,
+        "booked_at": ticket.booked_at,
         "valid_till": ticket.valid_till
     }
 
@@ -131,8 +132,8 @@ def get_user_history(phone: str, db: Session = Depends(get_db)):
         dest = db.query(Station).filter(Station.id == t.destination_station_id).first()
         res.append({
             "ticket_id": str(t.ticket_id),
-            "source_name": source.name if source else "Unknown",
-            "destination_name": dest.name if dest else "Unknown",
+            "source_name": f"{source.line}: {source.name}" if source else "Unknown",
+            "destination_name": f"{dest.line}: {dest.name}" if dest else "Unknown",
             "fare": t.fare,
             "passengers": t.passengers,
             "journey_type": t.journey_type,

@@ -37,7 +37,7 @@ export default function TopNav({ title = "", showBack = false }) {
             onClick={() => navigate(-1)}
             style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: 'var(--primary-color)', fontSize: '1.2rem', cursor: 'pointer', padding: '0.4rem 0.8rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center' }}
           >
-            ← Back
+            Back
           </button>
         ) : (
           <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--primary-color)', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>
@@ -51,7 +51,6 @@ export default function TopNav({ title = "", showBack = false }) {
         )}
       </div>
       
-      {/* Right Side: Utilities */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', justifyContent: 'flex-end' }}>
         <button 
           onClick={() => setIsLight(!isLight)}

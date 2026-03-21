@@ -56,9 +56,12 @@ export default function Ticket() {
     );
   }
 
-  // Safe names (Handle both state-pushed and API-fetched structures)
-  const sourceName = ticket.source_name || ticket.stations?.find(s => s.id === ticket.sourceId)?.name || 'Unknown';
-  const destName = ticket.destination_name || ticket.stations?.find(s => s.id === ticket.destId)?.name || 'Unknown';
+  const sourceStation = ticket.stations?.find(s => s.id === (ticket.source_station_id || ticket.sourceId));
+  const destStation = ticket.stations?.find(s => s.id === (ticket.destination_station_id || ticket.destId));
+  
+  const lineName = sourceStation?.line || destStation?.line || 'Metro Network';
+  const sourceName = sourceStation?.name || ticket.source_name?.split(': ').pop() || 'Unknown';
+  const destName = destStation?.name || ticket.destination_name?.split(': ').pop() || 'Unknown';
 
   return (
     <div className="page-container" style={{ justifyContent: 'flex-start', alignItems: 'center' }}>
@@ -73,10 +76,10 @@ export default function Ticket() {
           position: 'relative', 
           overflow: 'hidden',
           width: '100%',
-          maxWidth: '450px' /* Restored for desktop */
+          maxWidth: '450px'
         }}
       >
-        {/* Decorative ticket notch */}
+
         <div style={{ position: 'absolute', top: '150px', left: '-20px', width: '40px', height: '40px', background: 'var(--bg-dark)', borderRadius: '50%' }}></div>
         <div style={{ position: 'absolute', top: '150px', right: '-20px', width: '40px', height: '40px', background: 'var(--bg-dark)', borderRadius: '50%' }}></div>
 
@@ -87,6 +90,10 @@ export default function Ticket() {
         <p style={{ margin: '0.2rem 0 0 0', fontSize: '1rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
           ID: {id ? id.split('-')[0].toUpperCase() : 'N/A'}
         </p>
+
+        <div style={{ marginTop: '1.2rem', padding: '0.4rem 1rem', background: 'rgba(79, 70, 229, 0.1)', borderRadius: '0.75rem', display: 'inline-block', color: 'var(--primary-color)', fontWeight: 'bold', fontSize: '1rem', textTransform: 'uppercase' }}>
+          {lineName}
+        </div>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '1.5rem 0' }}>
           <div>
@@ -109,7 +116,7 @@ export default function Ticket() {
           </div>
           <div style={{ textAlign: 'right' }}>
             Valid Until:<br/>
-            <span style={{ color: 'var(--danger)', fontWeight: 'bold' }}>{new Date(ticket.valid_till).toLocaleString()}</span>
+            <span style={{ color: 'var(--text-light)', fontWeight: 'bold' }}>{new Date(ticket.valid_till).toLocaleString()}</span>
           </div>
         </div>
 

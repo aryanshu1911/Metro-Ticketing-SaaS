@@ -1,0 +1,29 @@
+Metro Ticketing System/
+├── backend/
+│   ├── app/
+│   │   ├── api/            # Route handlers (auth, station, wallet, ticket)
+│   │   ├── database/       # DB session and connection logic
+│   │   ├── models/         # SQLAlchemy database models
+│   │   ├── schemas/        # Pydantic validation schemas
+│   │   ├── services/       # Business logic (email, payments, etc.)
+│   │   ├── utils/          # Helper functions and utilities
+│   │   ├── config.py       # Configuration management
+│   │   └── main.py         # FastAPI application entry point
+│   └── requirements.txt    # Python dependencies
+├── .env                    # Global environment variables
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Full page components (Dashboard, Booking, etc.)
+│   │   ├── assets/         # Static assets (images, icons)
+│   │   ├── App.jsx         # Main React application & routing
+│   │   ├── api.js          # API service layer for backend communication
+│   │   ├── index.css       # Global styles and tailwind-like utilities
+│   │   └── main.jsx        # React DOM entry point
+│   ├── package.json        # Node.js dependencies and scripts
+│   └── vite.config.js      # Vite build configuration
+├── scripts/                # Utility and test automation scripts
+├── backups/                # Database and code backups
+├── README.md               # Main project documentation
+├── structure.txt           # Project directory structure (this file)
+└── procedure.txt           # Setup and operational procedures

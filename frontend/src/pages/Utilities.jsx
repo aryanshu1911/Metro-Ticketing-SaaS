@@ -31,7 +31,7 @@ export function Wallet() {
   const handlePaymentConfirm = async () => {
     setLoading(true);
     try {
-      // Simulation: assume user paid
+      // Simulated Payment: assume user paid
       await api.post('/wallet/top-up', { phone, amount: parseInt(amount) });
       fetchBalance();
       setShowQR(false);
@@ -154,11 +154,11 @@ export function History() {
                   <strong>{ticket.journey_type}</strong>
                   <span style={{ color: 'var(--primary-color)' }}>₹{ticket.fare}</span>
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {ticket.source_name} ➔ {ticket.destination_name}
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '0.2rem' }}>
+                  {ticket.source_name?.split(': ').pop()} ➔ {ticket.destination_name?.split(': ').pop()}
                 </div>
                 <div style={{ fontSize: '0.7rem', marginTop: '0.5rem', opacity: 0.6 }}>
-                  {new Date(ticket.booked_at).toLocaleDateString()} • {ticket.passengers} pax
+                  {ticket.booked_at ? new Date(ticket.booked_at).toLocaleString() : 'N/A'} • {ticket.passengers} pax
                 </div>
               </div>
             ))
@@ -236,6 +236,115 @@ export function Support() {
         <p>Call: 1800-METRO-HELP</p>
         <p>Email: support@metro.gov</p>
         <button className="btn-primary" onClick={() => navigate('/dashboard')} style={{ marginTop: '2rem' }}>Back</button>
+      </div>
+    </div>
+  );
+}
+export function MetroNetwork() {
+  const [selectedLine, setSelectedLine] = useState('Line 1');
+
+  const lines = {
+    'Line 1': {
+      color: '#4F46E5', // Blue
+      stations: ["Ghatkopar", "Jagruti Nagar", "Asalpha", "Saki Naka", "Marol Naka", "Airport Road", "Chakala", "Western Express Highway", "Andheri", "Azad Nagar", "D.N. Nagar", "Versova"]
+    },
+    'Line 2A': {
+      color: '#F59E0B', // Yellow
+      stations: ["Dahisar East", "Anand Nagar", "Kandarpada", "Mandapeshwar", "Eksar", "Borivali West", "Pahadi Eksar", "Kandivali West", "Dhanukarwadi", "Valnai", "Mith Chowki", "Lower Malad", "Lower Oshiwara", "Oshiwara", "Goregaon West", "Bangur Nagar", "D.N. Nagar"]
+    },
+    'Line 7': {
+      color: '#EF4444', // Red
+      stations: ["Dahisar East", "Ovaripada", "National Park", "Devipada", "Magathane", "Poisar", "Akurli", "Kurar", "Dindoshi", "Aarey", "JVLR", "Shankarwadi", "Mogra", "Gundavali"]
+    },
+    'Line 3': {
+      color: '#06B6D4', // Aqua
+      stations: [
+        "Aarey Colony", "SEEPZ", "MIDC", "Marol Naka", "CSMIA T2", "Sahar Road", 
+        "CSMIA T1", "Santacruz", "Vidyanagari", "BKC", "Dharavi", "Shitladevi", 
+        "Dadar", "Siddhivinayak", "Worli", "Acharya Atre Chowk", "Science Museum", 
+        "Mahalaxmi", "Mumbai Central", "Grant Road", "Girgaon", "Kalbadevi", 
+        "CSMT", "Hutatma Chowk", "Churchgate", "Vidhan Bhavan", "Cuffe Parade"
+      ]
+    }
+    
+  };
+
+  const currentLine = lines[selectedLine];
+
+  return (
+    <div className="page-container" style={{ justifyContent: 'flex-start' }}>
+      <TopNav title="Network Map" showBack />
+      
+      {/* Line Selector Tabs */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+        {Object.keys(lines).map(lineName => (
+          <button
+            key={lineName}
+            onClick={() => setSelectedLine(lineName)}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: '2rem',
+              border: `1px solid ${selectedLine === lineName ? lines[lineName].color : 'var(--glass-border)'}`,
+              background: selectedLine === lineName ? `${lines[lineName].color}22` : 'var(--glass-bg)',
+              color: selectedLine === lineName ? lines[lineName].color : 'var(--text-muted)',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              fontSize: '0.85rem',
+              fontWeight: selectedLine === lineName ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}
+          >
+            {lineName}
+          </button>
+        ))}
+      </div>
+
+      <div className="glass-card" style={{ padding: '1.5rem' }}>
+        <h3 style={{ marginBottom: '1.5rem', textAlign: 'center', color: currentLine.color }}>
+          {selectedLine}: {currentLine.stations[0]} - {currentLine.stations[currentLine.stations.length - 1]}
+        </h3>
+        
+        <div style={{ position: 'relative', padding: '1rem 0' }}>
+          <div style={{ 
+            position: 'absolute', 
+            left: '25px', 
+            top: '0', 
+            bottom: '0', 
+            width: '4px', 
+            background: currentLine.color, 
+            borderRadius: '2px',
+            opacity: 0.3
+          }}></div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
+            {currentLine.stations.map((name, i) => (
+              <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                <div style={{ 
+                  width: '14px', 
+                  height: '14px', 
+                  borderRadius: '50%', 
+                  background: currentLine.color, 
+                  border: '3px solid white',
+                  boxShadow: `0 0 10px ${currentLine.color}88`,
+                  zIndex: 2
+                }}></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{name}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    {i === 0 || i === currentLine.stations.length - 1 ? 'Terminal' : (
+                      (name === 'D.N. Nagar' || name === 'Marol Naka' || name === 'Dahisar East') ? 'Interchange Station' : 'Stop'
+                    )}
+                  </div>
+                </div>
+                {(name === 'D.N. Nagar' || name === 'Marol Naka' || name === 'Dahisar East') && (
+                  <div style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', padding: '0.2rem 0.5rem', borderRadius: '1rem' }}>
+                    🔄 Interchange
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

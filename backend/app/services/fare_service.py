@@ -1,17 +1,16 @@
-def calculate_fare(source_idx: int, dest_idx: int):
-    # Mumbai Metro Line 1 Logic:
-    # 0-3 stations: 10 INR
-    # 4-7 stations: 20 INR
-    # 8-11 stations: 30 INR
-    # 11+ stations: 40 INR
+def calculate_fare(source_line: str, source_idx: int, dest_line: str, dest_idx: int):
+    # Mumbai Metro Multi-Line Logic:
+    if source_line == dest_line:
+        diff = abs(dest_idx - source_idx)
+    else:
+        # Simple cross-line calculation: sum of distances + interchange factor
+        diff = abs(source_idx) + abs(dest_idx) + 5
     
-    stations_info = abs(dest_idx - source_idx)
-    
-    if stations_info <= 3:
+    if diff <= 3:
         return 10
-    elif stations_info <= 7:
+    elif diff <= 7:
         return 20
-    elif stations_info <= 11:
+    elif diff <= 11:
         return 30
     else:
         return 40

@@ -61,7 +61,7 @@ export default function Login() {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ justifyContent: 'center', alignItems: 'center' }}>
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -69,7 +69,7 @@ export default function Login() {
         style={{ width: '100%', maxWidth: '400px' }}
       >
         <h2 style={{ textAlign: 'center', color: 'var(--primary-color)', marginBottom: '0.5rem' }}>
-          Metro Ticketing
+          Metro Ticketing System
         </h2>
         
         <p style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
@@ -82,7 +82,7 @@ export default function Login() {
         {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem', textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', padding: '0.5rem', borderRadius: '0.5rem', fontSize: '0.9rem' }}>{error}</div>}
 
         <form onSubmit={handleAction}>
-          {/* LOGIN OR REG STEP 1 */}
+          {/* STEP 1: LOGIN OR REGISTER */}
           {(!isRegistering || regStep === 1) && (
             <input
               type="tel"
@@ -105,7 +105,7 @@ export default function Login() {
             />
           )}
 
-          {/* OTP STEP */}
+          {/* STEP 2: OTP Validation*/}
           {isRegistering && regStep === 2 && (
             <input
               type="text"
@@ -119,11 +119,11 @@ export default function Login() {
             />
           )}
 
-          {/* MPIN STEP (Used in Login and Register Step 3) */}
+          {/* STEP 3: MPIN Validation*/}
           {(!isRegistering || (isRegistering && regStep === 3)) && (
             <input
               type="password"
-              placeholder="Set 4-Digit mPIN"
+              placeholder="4-Digit mPIN"
               maxLength={4}
               value={mpin}
               onChange={(e) => setMpin(e.target.value)}
@@ -159,7 +159,7 @@ export default function Login() {
             style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.8rem' }}
             onClick={() => setRegStep(regStep - 1)}
           >
-            ← Go Back
+            Go Back
           </p>
         )}
       </motion.div>

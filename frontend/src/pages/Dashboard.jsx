@@ -31,7 +31,7 @@ export default function Dashboard() {
     { title: 'Book Ticket', icon: '🎫', path: '/book', color: '#4F46E5', desc: 'New Journey' },
     { title: 'My Tickets', icon: '📖', path: '/history', color: '#10B981', desc: 'View Active' },
     { title: 'Wallet', icon: '💳', path: '/wallet', color: '#F59E0B', desc: `Balance: ₹${balance}` },
-    { title: 'Profile', icon: '👤', path: '/profile', color: '#6366F1', desc: 'User Details' },
+    { title: 'Metro Map', icon: '🗺️', path: '/map', color: '#6366F1', desc: 'Network View' },
     { title: 'Transaction History', icon: '🕒', path: '/transactions', color: '#EC4899', desc: 'Payment Logs' },
     { title: 'Support', icon: '🎧', path: '/support', color: '#8B5CF6', desc: '24/7 Help' },
   ];
