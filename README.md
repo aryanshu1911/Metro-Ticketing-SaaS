@@ -2,8 +2,6 @@
 
 This Metro Ticketing System is a modern, all-in-one platform built to make city travel easier for everyone. Think of it as a digital companion for your daily commute. Whether you're topping up your in-app wallet, checking out the real-time Mumbai Metro map, or using a dynamic QR code to skip the ticket lines, everything is designed to be seamless. Built with reliable tech like FastAPI and React, we ensure your payments are secure and your tickets are always ready when you need them. It's not just a ticketing app; it's a complete Software-as-a-Service (SaaS) solution for a smarter, smoother city life.
 
----
-
 ## ✨ Key Features
 
 - 💠 **Hardened Digital Wallet**: Strictly validated top-ups with integrated UPI fallback and backend-led transaction logging.
@@ -13,8 +11,6 @@ This Metro Ticketing System is a modern, all-in-one platform built to make city 
 - 🔐 **Secure Authentication**: Robust JWT-based registration system with mandatory secondary mPIN protection.
 - 🎨 **Premium UI/UX**: High-contrast, mobile-first design system with Glassmorphism and seamless light/dark mode support.
 
----
-
 ## 🛠️ Tech Stack
 
 - **Frontend**: React.js (Vite) + Framer Motion
@@ -23,8 +19,6 @@ This Metro Ticketing System is a modern, all-in-one platform built to make city 
 - **Security**: JWT (JSON Web Tokens) 
 - **Styling**: Vanilla CSS (Modern Glassmorphism) 
 - **API Client**: Axios
-
----
 
 ## 📡 API Reference
 
@@ -47,8 +41,6 @@ This Metro Ticketing System is a modern, all-in-one platform built to make city 
 | `/wallet/balance/{phone}` | `GET` | Get current wallet balance. |
 | `/wallet/topup` | `POST` | Recharge wallet via simulated UPI. |
 
----
-
 ## ⚙️ Configuration
 
 Create a `.env` file in the root directory and populate it with the following:
@@ -62,8 +54,6 @@ Create a `.env` file in the root directory and populate it with the following:
 | `POSTGRES_PORT` | Database Port | `5432` |
 | `SECRET_KEY` | JWT Secret Key | `your_super_secret_key` |
 | `ALGORITHM` | JWT Hashing Algorithm | `HS256` |
-
----
 
 ## 📥 Installation
 
@@ -83,8 +73,6 @@ cd frontend
 npm install
 ```
 
----
-
 ## 🏃 Running the Application
 
 ### Start Backend
@@ -98,7 +86,5 @@ uvicorn app.main:app --reload
 cd frontend
 npm run dev
 ```
-
----
 
 💡 **Tip**: Full detailed project structure can be found in [structure.txt](structure.txt).
