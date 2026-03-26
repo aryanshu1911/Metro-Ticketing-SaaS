@@ -20,9 +20,5 @@ frontend/npm-debug.log*
 .idea
 .DS_Store
 
-# Misc
-procedure.txt
-structure.txt
-
 # Temporary files
 tmp/
