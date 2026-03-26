@@ -23,3 +23,6 @@ frontend/npm-debug.log*
 # Misc
 procedure.txt
 structure.txt
+
+# Temporary files
+tmp/
