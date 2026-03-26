@@ -5,6 +5,7 @@ from ..models.ticket import Ticket
 from ..models.user import User
 from ..models.station import Station
 from ..models.transaction import Transaction
+from ..models.failed_transaction import FailedTransaction
 from ..services.fare_service import calculate_fare
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
@@ -19,6 +20,7 @@ class BookingSchema(BaseModel):
     passengers: int = 1
     journey_type: str = "single"
     payment_method: str = "wallet"  # 'wallet' or 'upi'
+    idempotency_key: str = None
 
 @router.get("/calculate-fare")
 def get_fare(source_id: str, dest_id: str, passengers: int = 1, journey_type: str = "single", db: Session = Depends(get_db)):
@@ -48,34 +50,61 @@ def book_ticket(data: BookingSchema, db: Session = Depends(get_db)):
     base_fare = calculate_fare(source.line, source.order_index, dest.line, dest.order_index)
     total_fare = base_fare * data.passengers * (2 if data.journey_type == "return" else 1)
     
-    # Check & Deduct Balance (Only if paying via wallet)
-    if data.payment_method == "wallet":
-        if user.wallet_balance < total_fare:
-            raise HTTPException(status_code=400, detail=f"Insufficient wallet balance. Needed: {total_fare}, Current: {user.wallet_balance}")
-        user.wallet_balance -= total_fare
-    
-    # Create ticket with 2-hours validity
-    validity_duration = timedelta(hours=2)
-    new_ticket = Ticket(
-        user_id=user.id,
-        source_station_id=source.id,
-        destination_station_id=dest.id,
-        passengers=data.passengers,
-        journey_type=data.journey_type,
-        fare=total_fare,
-        qr_code=str(uuid.uuid4()),
-        valid_till=datetime.now(timezone.utc) + validity_duration
-    )
-    db.add(new_ticket)
-    
-    # Record transaction
-    new_tx = Transaction(
-        user_id=user.id,
-        type="TICKET_BOOKING",
-        amount=-float(total_fare), # Negative for deduction
-        description=f"{source.line}: {source.name} ➔ {dest.name} ({data.passengers} Pax)"
-    )
-    db.add(new_tx)
+    if data.idempotency_key:
+        existing_tx = db.query(Transaction).filter(
+            Transaction.user_id == user.id, 
+            Transaction.idempotency_key == data.idempotency_key
+        ).first()
+        if existing_tx:
+            raise HTTPException(status_code=400, detail="Booking already processed recently")
+
+    try:
+        with db.begin_nested():
+            # Check & Deduct Balance (Only if paying via wallet)
+            if data.payment_method == "wallet":
+                if user.wallet_balance < total_fare:
+                    raise HTTPException(status_code=400, detail=f"Insufficient wallet balance. Needed: {total_fare}, Current: {user.wallet_balance}")
+                user.wallet_balance -= total_fare
+            
+            # Record transaction FIRST to get ID
+            new_tx = Transaction(
+                user_id=user.id,
+                type="TICKET_BOOKING",
+                amount=-float(total_fare), # Negative for deduction
+                description=f"{source.line}: {source.name} ➔ {dest.name} ({data.passengers} Pax)",
+                idempotency_key=data.idempotency_key
+            )
+            db.add(new_tx)
+            db.flush() # Flush to get new_tx.id
+            
+            # Create ticket with 2-hours validity
+            validity_duration = timedelta(hours=2)
+            new_ticket = Ticket(
+                transaction_id=new_tx.id,
+                user_id=user.id,
+                source_station_id=source.id,
+                destination_station_id=dest.id,
+                passengers=data.passengers,
+                journey_type=data.journey_type,
+                fare=total_fare,
+                qr_code=str(uuid.uuid4()),
+                valid_till=datetime.now(timezone.utc) + validity_duration
+            )
+            db.add(new_ticket)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        failed_tx = FailedTransaction(
+            user_id=user.id,
+            amount=total_fare,
+            endpoint="/tickets/book",
+            error_message=str(e)
+        )
+        db.add(failed_tx)
+        db.commit()
+        raise HTTPException(status_code=500, detail="Booking failed. Deductions reverted and issue logged.")
 
     db.commit()
     db.refresh(new_ticket)
@@ -168,12 +197,4 @@ def get_user_history(phone: str, db: Session = Depends(get_db)):
         })
     return res
 
-@router.delete("/{ticket_id}")
-def delete_ticket(ticket_id: str, db: Session = Depends(get_db)):
-    ticket = db.query(Ticket).filter(Ticket.ticket_id == ticket_id).first()
-    if not ticket:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-    
-    db.delete(ticket)
-    db.commit()
-    return {"message": "Ticket deleted successfully"}
+
