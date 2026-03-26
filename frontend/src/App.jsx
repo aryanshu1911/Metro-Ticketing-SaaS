@@ -4,7 +4,16 @@ import Dashboard from './pages/Dashboard';
 import Booking from './pages/Booking';
 import { Wallet, History, Profile, Support, MetroNetwork } from './pages/Utilities';
 import Ticket from './pages/Ticket';
+import AdminLayout from './admin/components/AdminLayout';
+import AdminPrivateRoute from './admin/components/AdminPrivateRoute';
+import AdminDashboard from './admin/pages/AdminDashboard';
+import AdminUsers from './admin/pages/AdminUsers';
+import AdminTransactions from './admin/pages/AdminTransactions';
+import AdminRefunds from './admin/pages/AdminRefunds';
+import AdminTickets from './admin/pages/AdminTickets';
+import AdminStations from './admin/pages/AdminStations';
 import './index.css';
+import './admin/components/AdminLayout.css'; // FORCE CSS RELOAD
 
 // Simple Error Boundary
 import React from 'react';
@@ -52,6 +61,17 @@ function App() {
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
             <Route path="/support" element={<PrivateRoute><Support /></PrivateRoute>} />
             <Route path="/map" element={<PrivateRoute><MetroNetwork /></PrivateRoute>} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminPrivateRoute><AdminLayout /></AdminPrivateRoute>}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="transactions" element={<AdminTransactions />} />
+                <Route path="refunds" element={<AdminRefunds />} />
+                <Route path="tickets" element={<AdminTickets />} />
+                <Route path="stations" element={<AdminStations />} />
+                <Route path="lines" element={<AdminStations />} />
+            </Route>
             
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
