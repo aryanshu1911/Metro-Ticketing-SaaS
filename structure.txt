@@ -21,5 +21,4 @@ Metro Ticketing System/
 │   └── package.json        # JS dependencies
 │
 ├── .env                    # Shared Environment variables
-├── README.md               # Overview & Feature summary
-└── procedure.txt           # Setup and Operational Guide
+└── README.md               # Overview & Feature summary 
