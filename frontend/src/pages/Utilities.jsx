@@ -140,16 +140,6 @@ export function History() {
     fetchData();
   }, [phone, activeTab]);
 
-  const handleDeleteTicket = async (e, ticketId) => {
-    e.stopPropagation();
-    if (!window.confirm('Delete this ticket from history?')) return;
-    try {
-      await api.delete(`/tickets/${ticketId}`);
-      setTickets(prev => prev.filter(t => t.ticket_id !== ticketId));
-    } catch (err) {
-      alert('Failed to delete.');
-    }
-  };
 
   return (
     <div className="page-container" style={{ justifyContent: 'flex-start' }}>
@@ -202,14 +192,6 @@ export function History() {
                     <strong>{ticket.journey_type}</strong>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>₹{ticket.fare}</span>
-                      <button 
-                        onClick={(e) => handleDeleteTicket(e, ticket.ticket_id)}
-                        className="btn-delete"
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/>
-                        </svg>
-                      </button>
                     </div>
                   </div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '0.2rem' }}>
@@ -421,9 +403,7 @@ export function MetroNetwork() {
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: '600', fontSize: '0.95rem', lineHeight: '1.4' }}>{s.name}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {i === 0 || i === stations.length - 1 ? 'Terminal' : (
-                          (s.name === 'D.N. Nagar' || s.name === 'Marol Naka' || s.name === 'Dahisar East') ? 'Interchange Station' : 'Stop'
-                        )}
+                        {s.is_interchange ? '🔄 Interchange Station' : (i === 0 || i === stations.length - 1 ? 'Terminal' : 'Stop')}
                       </div>
                     </div>
                   </div>
