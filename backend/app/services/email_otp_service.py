@@ -4,11 +4,17 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Explicitly load the root .env file
+root_env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env"))
+load_dotenv(root_env_path)
 
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
 EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
+EMAIL_PASS_RAW = os.getenv("EMAIL_PASS", "")
+EMAIL_PASS = EMAIL_PASS_RAW.replace(" ", "") if EMAIL_PASS_RAW else ""
 
 def generate_otp():
     return str(random.randint(100000, 999999))

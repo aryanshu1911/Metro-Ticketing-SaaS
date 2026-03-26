@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function TopNav({ title = "", showBack = false }) {
+export default function TopNav({ title = "", showBack = false, isAdmin = false }) {
   const navigate = useNavigate();
   const [isLight, setIsLight] = useState(localStorage.getItem('theme') === 'light');
 
@@ -17,7 +17,7 @@ export default function TopNav({ title = "", showBack = false }) {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate('/login');
+    navigate(isAdmin ? '/admin/login' : '/login');
   };
 
   return (
@@ -61,7 +61,7 @@ export default function TopNav({ title = "", showBack = false }) {
         </button>
 
         <button 
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate(isAdmin ? '/admin' : '/profile')}
           style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: 'var(--text-light)', padding: '0', borderRadius: '50%', cursor: 'pointer', fontSize: '1.2rem', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           title="My Profile"
         >

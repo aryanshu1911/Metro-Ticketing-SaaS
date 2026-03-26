@@ -9,6 +9,7 @@ class Ticket(Base):
     __tablename__ = "tickets"
 
     ticket_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    transaction_id = Column(UUID(as_uuid=True), ForeignKey("transactions.id"), nullable=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     source_station_id = Column(UUID(as_uuid=True), ForeignKey("stations.id"), nullable=False)
     destination_station_id = Column(UUID(as_uuid=True), ForeignKey("stations.id"), nullable=False)
@@ -18,5 +19,6 @@ class Ticket(Base):
     qr_code = Column(String, nullable=False)
     entry_scanned = Column(Boolean, default=False)
     exit_scanned = Column(Boolean, default=False)
+    is_revoked = Column(Boolean, default=False)
     booked_at = Column(DateTime(timezone=True), server_default=func.now())
     valid_till = Column(DateTime(timezone=True), nullable=False)

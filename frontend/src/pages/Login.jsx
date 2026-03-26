@@ -25,9 +25,17 @@ export default function Login() {
       if (!isRegistering) {
         // LOGIN FLOW
         const res = await api.post('/auth/login', { phone, mpin });
-        localStorage.setItem('token', res.data.access_token);
-        localStorage.setItem('phone', phone);
-        navigate('/dashboard');
+        
+        if (res.data.is_admin) {
+            localStorage.setItem('adminToken', res.data.access_token);
+            localStorage.setItem('adminEmail', res.data.email);
+            localStorage.setItem('adminRole', 'superadmin');
+            navigate('/admin');
+        } else {
+            localStorage.setItem('token', res.data.access_token);
+            localStorage.setItem('phone', phone);
+            navigate('/dashboard');
+        }
       } else {
         // REGISTRATION FLOW
         if (regStep === 1) {

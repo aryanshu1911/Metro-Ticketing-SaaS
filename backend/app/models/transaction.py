@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Text
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime, timezone
 import uuid
@@ -23,6 +23,9 @@ class Transaction(Base):
     
     timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
+    reconciled = Column(Boolean, default=False)
+    idempotency_key = Column(String(255), nullable=True)
+
     def to_dict(self):
         return {
             "id": str(self.id),
@@ -31,5 +34,6 @@ class Transaction(Base):
             "amount": self.amount,
             "description": self.description,
             "payment_id": self.payment_id,
+            "reconciled": self.reconciled,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None
         }

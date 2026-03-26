@@ -11,6 +11,7 @@ router = APIRouter(prefix="/wallet", tags=["wallet"])
 class TopUpSchema(BaseModel):
     phone: str
     amount: int
+    idempotency_key: str = None
 
 @router.get("/balance/{phone}")
 def get_balance(phone: str, db: Session = Depends(get_db)):
@@ -26,6 +27,14 @@ def top_up(data: TopUpSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     if data.amount <= 0:
         raise HTTPException(status_code=400, detail="Top-up amount must be greater than zero")
+        
+    if data.idempotency_key:
+        existing_tx = db.query(Transaction).filter(
+            Transaction.user_id == user.id, 
+            Transaction.idempotency_key == data.idempotency_key
+        ).first()
+        if existing_tx:
+            return {"message": "Top-up already processed", "new_balance": user.wallet_balance}
     
     user.wallet_balance += data.amount
     
@@ -34,7 +43,8 @@ def top_up(data: TopUpSchema, db: Session = Depends(get_db)):
         user_id=user.id,
         type="TOP_UP",
         amount=float(data.amount),
-        description="Wallet Recharge (Top-up)"
+        description="Wallet Recharge (Top-up)",
+        idempotency_key=data.idempotency_key
     )
     db.add(new_tx)
     db.commit()
